@@ -23,7 +23,6 @@ const SingleBlogPage = async ({
   const { slug } = await params;
   const blog: SINGLE_BLOG_QUERYResult = await getSingleBlog(slug);
   if (!blog) return notFound();
-
   return (
     <div className="py-10">
       <Container className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -39,18 +38,16 @@ const SingleBlogPage = async ({
           )}
           <div>
             <div className="text-xs flex items-center gap-5 my-7">
-              <div className="flex items-center relative group cursor-pointer">
-                {blog?.blogcategories?.map(
-                  (item: { title: string }, index: number) => (
-                    <p
-                      key={index}
-                      className="font-semibold text-shop_dark_green tracking-wider"
-                    >
-                      {item?.title}
-                    </p>
-                  )
-                )}
-                <span className="absolute left-0 -bottom-1.5 bg-lightColor/30 inline-block w-full h-[2px] group-hover:bg-shop_dark_green hover:cursor-pointer hoverEffect" />
+              <div className="flex items-center relative group cursor-pointer space-x-4">
+                {blog?.blogcategories?.map((item, index) => (
+                  <p
+                    key={index}
+                    className="font-semibold text-green-800 tracking-wider"
+                  >
+                    {item?.title}
+                  </p>
+                ))}
+                <span className="absolute left-0 -bottom-1.5 bg-green-300/30 inline-block w-full h-[2px] group-hover:bg-green-800 hover:cursor-pointer transition-all duration-300" />
               </div>
               <p className="flex items-center gap-1 text-lightColor relative group hover:cursor-pointer hover:text-shop_dark_green hoverEffect">
                 <Pencil size={15} /> {blog?.author?.name}
@@ -193,7 +190,7 @@ const SingleBlogPage = async ({
 
 const BlogLeft = async ({ slug }: { slug: string }) => {
   const categories = await getBlogCategories();
-  const blogs: SINGLE_BLOG_QUERYResult[] = await getOthersBlog(slug, 5);
+  const blogs = await getOthersBlog(slug, 5);
 
   return (
     <div>
@@ -205,11 +202,7 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
               key={index}
               className="text-lightColor flex items-center justify-between text-sm font-medium"
             >
-              <p>
-                {Array.isArray(blogcategories) && blogcategories.length > 0
-                  ? blogcategories[0]?.title
-                  : "No Category"}
-              </p>
+              <p>{blogcategories[0]?.title}</p>
               <p className="text-darkColor font-semibold">{`(1)`}</p>
             </div>
           ))}
@@ -218,7 +211,7 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
       <div className="border border-lightColor p-5 rounded-md mt-10">
         <Title className="text-base">Latest Blogs</Title>
         <div className="space-y-4 mt-4">
-          {blogs?.map((blog, index) => (
+          {blogs?.map((blog: Blog, index: number) => (
             <Link
               href={`/blog/${blog?.slug?.current}`}
               key={index}
