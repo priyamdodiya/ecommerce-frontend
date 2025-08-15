@@ -193,7 +193,7 @@ const SingleBlogPage = async ({
 
 const BlogLeft = async ({ slug }: { slug: string }) => {
   const categories = await getBlogCategories();
-  const blogs = await getOthersBlog(slug, 5);
+  const blogs: SINGLE_BLOG_QUERYResult[] = await getOthersBlog(slug, 5);
 
   return (
     <div>
@@ -218,7 +218,7 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
       <div className="border border-lightColor p-5 rounded-md mt-10">
         <Title className="text-base">Latest Blogs</Title>
         <div className="space-y-4 mt-4">
-          {blogs?.map((blog: any, index: number) => (
+          {blogs?.map((blog, index) => (
             <Link
               href={`/blog/${blog?.slug?.current}`}
               key={index}
