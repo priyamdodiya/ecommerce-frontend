@@ -127,6 +127,8 @@ const getSingleBlog = async (slug: string) => {
     return [];
   }
 };
+
+
 const getBlogCategories = async () => {
   try {
     const { data } = await sanityFetch({

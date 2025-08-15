@@ -41,10 +41,22 @@ const GET_ALL_BLOG = defineQuery(
   `
 );
 
-const SINGLE_BLOG_QUERY =
-  defineQuery(`*[_type == "blog" && slug.current == $slug][0]{
-  ..., 
-    author->{
+// const SINGLE_BLOG_QUERY =
+//   defineQuery(`*[_type == "blog" && slug.current == $slug][0]{
+//   ..., 
+//     author->{
+//     name,
+//     image,
+//   },
+//   blogcategories[]->{
+//     title,
+//     "slug": slug.current,
+//   },
+// }`);
+const SINGLE_BLOG_QUERY = `
+*[_type == "blog" && slug.current == $slug][0]{
+  ...,
+  author->{
     name,
     image,
   },
@@ -52,7 +64,9 @@ const SINGLE_BLOG_QUERY =
     title,
     "slug": slug.current,
   },
-}`);
+}
+`;
+
 
 const BLOG_CATEGORIES = defineQuery(
   `*[_type == "blog"]{
