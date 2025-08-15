@@ -18,7 +18,7 @@ const NoAccess = ({
     <div className="flex items-center justify-center py-12 md:py-32 bg-gray-100 p-4">
       <Card className="w-full max-w-md p-5">
         <CardHeader className="flex items-center flex-col">
-          <Logo />
+          <Logo spanDesign={""}/>
           <CardTitle className="text-2xl font-bold text-center">
             Welcome Back!
           </CardTitle>

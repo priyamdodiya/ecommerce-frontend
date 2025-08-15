@@ -6,7 +6,7 @@ const NotFoundPage = () => {
     <div className="bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-10 md:py-32">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <Logo/>
+          <Logo spanDesign="text-xl"/>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Looking for something?
           </h2>

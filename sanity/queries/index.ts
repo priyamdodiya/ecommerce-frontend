@@ -11,6 +11,7 @@ import {
   PRODUCT_BY_SLUG_QUERY,
   SINGLE_BLOG_QUERY,
 } from "./query";
+import { Product } from "@/sanity.types";
 
 const getCategories = async (quantity?: number) => {
   try {
@@ -28,7 +29,10 @@ const getCategories = async (quantity?: number) => {
       params: quantity ? { quantity } : {},
     });
     return data;
-  } catch (error) {
+  }
+  
+  
+  catch (error) {
     console.log("Error fetching categories", error);
     return [];
   }
@@ -53,15 +57,26 @@ const getLatestBlogs = async () => {
     return [];
   }
 };
-const getDealProducts = async () => {
+// const getDealProducts = async () => {
+//   try {
+//     const { data } = await sanityFetch({ query: DEAL_PRODUCTS });
+//     return data ?? [];
+//   } catch (error) {
+//     console.log("Error fetching deal Products:", error);
+//     return [];
+//   }
+// };
+
+ const getDealProducts = async () => {
   try {
-    const { data } = await sanityFetch({ query: DEAL_PRODUCTS });
+    const { data }: { data: Product[] } = await sanityFetch({ query: DEAL_PRODUCTS });
     return data ?? [];
   } catch (error) {
     console.log("Error fetching deal Products:", error);
     return [];
   }
 };
+
 const getProductBySlug = async (slug: string) => {
   try {
     const product = await sanityFetch({

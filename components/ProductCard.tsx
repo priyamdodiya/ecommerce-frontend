@@ -26,7 +26,6 @@ const ProductCard = ({ product }: { product: Product }) => {
               ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
             />
           </Link>
-          
         )}
         <AddToWishlistButton product={product} />
         {product?.status === "sale" ? (

@@ -15,7 +15,7 @@ const Footer = () => {
         <FooterTop />
         <div className='py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
           <div className='space-y-4'>
-            <Logo />
+            <Logo spanDesign={""}/>
             <SubText>
               Discover curated furniture collections at shopcartyt, blending
               style and comfort to elevate your living spaces.
@@ -82,7 +82,7 @@ const Footer = () => {
 
         <div className='py-6 border-t text-center text-sm text-gray-600'>
           <div>
-            {new Date().getFullYear()} <Logo className='text-sm' />. All rights
+            {new Date().getFullYear()} <Logo spanDesign="text-xl" className='text-sm' />. All rights
             reserved.
           </div>
         </div>

@@ -5,7 +5,7 @@ import { getDealProducts } from "@/sanity/queries";
 import React from "react";
 
 const DealPage = async () => {
-  const products = await getDealProducts();
+  const products =  await getDealProducts();
   return (
     <div className="py-10 bg-deal-bg">
       <Container>
@@ -14,7 +14,7 @@ const DealPage = async () => {
         </Title>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
           {products?.map((product) => (
-            <ProductCard key={product?._id} product={product} />
+            <ProductCard key={product._id} product={product}/>
           ))}
         </div>
       </Container>

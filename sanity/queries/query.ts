@@ -11,11 +11,18 @@ const LATEST_BLOG_QUERY = defineQuery(
     }`
 );
 
-const DEAL_PRODUCTS = defineQuery(
-  `*[_type == 'product' && status == 'hot'] | order(name asc){
-    ...,"categories": categories[]->title
-  }`
-);
+// const DEAL_PRODUCTS = defineQuery(
+//   `*[_type == 'product' && status == 'hot'] | order(name asc){
+//     ...,"categories": categories[]->title
+//   }`
+// );
+ const DEAL_PRODUCTS = defineQuery(`
+  *[_type == 'product' && status == 'hot'] | order(name asc) {
+    ...,
+    categories[]->{ title }
+  }
+`);
+
 
 const PRODUCT_BY_SLUG_QUERY = defineQuery(
   `*[_type == "product" && slug.current == $slug] | order(name asc) [0]`
