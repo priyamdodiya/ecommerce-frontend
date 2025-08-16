@@ -24,6 +24,7 @@
     "@sanity/icons": "^3.7.4",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^4.3.0",
+    "any": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
     "cwr": "^1.0.8",

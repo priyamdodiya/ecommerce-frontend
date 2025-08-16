@@ -11,7 +11,7 @@ const SubTitle = ({ children, className }: { children: React.ReactNode; classNam
 
 
 
-const SubText = ({ children, className }: { children: React.ReactNode; className?: string; }) =>{
+const SubText = ({ children }: { children: React.ReactNode; className?: string; }) =>{
     return <p className={cn("text-gray-600 text-sm")}>{children}</p>
 }
 
