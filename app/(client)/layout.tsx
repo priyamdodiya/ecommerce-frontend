@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import {ClerkProvider} from "@clerk/nextjs"
+import { ClerkProvider } from "@clerk/nextjs"
 
 export const metadata: Metadata = {
   title: {
-    template : "%s - Shopcart online store",
-    default : "Shopcart online store"
+    template: "%s - Shopcart online store",
+    default: "Shopcart online store"
   },
-  description : "Shopcart online store, your one stop shop for all your needs"
+  description: "Shopcart online store, your one stop shop for all your needs"
 };
 
 export default function RootLayout({
@@ -21,12 +21,12 @@ export default function RootLayout({
     <ClerkProvider>
       <body>
         <div className="flex flex-col">
-          <Header/>
-        <main className="flex-1">{children}</main>
-        <Footer/>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
         </div>
       </body>
-    
-   </ClerkProvider>
+
+    </ClerkProvider>
   );
 }
