@@ -5,12 +5,12 @@ import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
-import { StarIcon } from "@sanity/icons";
 import { Flame } from "lucide-react";
 import Title from "./Title";
 import PriceView from "./PriceView";
 import AddToCartButton from "./AddToCartButton";
 import AddToWishlistButton from "./AddToWishlistButton";
+import StarRating from "./StarRating";
 
 const ProductCard = ({ product }: { product: Product }) => {
   return (
@@ -58,21 +58,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         )}
 
         <Title className="text-sm line-clamp-1">{product?.name}</Title>
-
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, index) => (
-              <StarIcon
-                key={index}
-                className={
-                  index < 4 ? "text-shop_light_green" : " text-lightText"
-                }
-                fill={index < 4 ? "#93D991" : "#ababab"}
-              />
-            ))}
-          </div>
-          <p className="text-lightText text-xs tracking-wide">5 Reviews</p>
-        </div>
+        <StarRating productId={product._id}/>
 
         <div className="flex items-center gap-2.5">
           <p className="font-medium">In Stock</p>
@@ -94,7 +80,6 @@ const ProductCard = ({ product }: { product: Product }) => {
         />
       </div>
 
-      {/* Cart button (Client Component) */}
       <AddToCartButton product={product} className="w-36 rounded-full" />
     </div>
   );
