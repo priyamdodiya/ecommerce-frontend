@@ -14,16 +14,9 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { client } from "@/sanity/lib/client";
 import { productWithReviewStatsQuery } from "@/sanity/queries/reviewQueries";
 import StarRating from "@/components/StarRating";
-
-const SingleProductPage = async ({
-  params,
-}: {
-  params: { slug: string };
-}) => {
+const SingleProductPage = async ({ params } : { params: { slug: string } }) => {
   const { slug } = params;
-
   const product = await client.fetch(productWithReviewStatsQuery, { slug });
-
   if (!product) {
     return notFound();
   }
@@ -76,11 +69,10 @@ const SingleProductPage = async ({
             className="text-lg font-bold"
           />
           <p
-            className={`px-4 py-1.5 text-sm text-center inline-block font-semibold rounded-lg ${
-              product?.stock === 0
+            className={`px-4 py-1.5 text-sm text-center inline-block font-semibold rounded-lg ${product?.stock === 0
                 ? "bg-red-100 text-red-600"
                 : "text-green-600 bg-green-100"
-            }`}
+              }`}
           >
             {(product?.stock as number) > 0 ? "In Stock" : "Out of Stock"}
           </p>
@@ -142,3 +134,7 @@ const SingleProductPage = async ({
 };
 
 export default SingleProductPage;
+
+
+
+
