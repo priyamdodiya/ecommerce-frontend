@@ -1,5 +1,4 @@
 "use client";
-
 import { Product } from "@/sanity.types";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
@@ -12,7 +11,24 @@ import AddToCartButton from "./AddToCartButton";
 import AddToWishlistButton from "./AddToWishlistButton";
 import StarRating from "./StarRating";
 
-const ProductCard = ({ product }: { product: Product }) => {
+interface ProductWithReviewStats extends Product {
+  reviewStats?: { rating: number }[];
+}
+
+const ProductCard = ({ product }: { product: ProductWithReviewStats }) => {
+  const totalReviews = product?.reviewStats?.length || 0;
+  const ratingCounts = [0, 0, 0, 0, 0];
+  let totalRatingSum = 0;
+
+  if (totalReviews > 0) {
+    product.reviewStats?.forEach((review) => {
+      ratingCounts[review.rating - 1]++;
+      totalRatingSum += review.rating;
+    });
+  }
+
+  const averageRating = totalReviews > 0 ? totalRatingSum / totalReviews : 0;
+
   return (
     <div className="text-sm border-[1px] rounded-md border-darkBlue/20 group bg-white">
       <div className="relative group overflow-hidden bg-shop_light_bg">
@@ -24,7 +40,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               width={500}
               height={500}
               priority
-              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
+              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500  
               ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
             />
           </Link>
@@ -58,7 +74,13 @@ const ProductCard = ({ product }: { product: Product }) => {
         )}
 
         <Title className="text-sm line-clamp-1">{product?.name}</Title>
-        <StarRating productId={product._id}/>
+        <StarRating
+          productId={product._id}
+          averageRating={averageRating}
+          totalReviews={totalReviews}
+          ratingCounts={ratingCounts}
+          disableHoverEffect={true}
+        />
 
         <div className="flex items-center gap-2.5">
           <p className="font-medium">In Stock</p>

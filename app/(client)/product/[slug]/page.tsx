@@ -1,11 +1,9 @@
-
 import AddToCartButton from "@/components/AddToCartButton";
 import Container from "@/components/Container";
 import FavoriteButton from "@/components/FavoriteButton";
 import ImageView from "@/components/ImageView";
 import PriceView from "@/components/PriceView";
 import ProductCharacteristics from "@/components/ProductCharacteristics";
-import { getProductBySlug } from "@/sanity/queries";
 import { CornerDownLeft, Truck } from "lucide-react";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -13,23 +11,47 @@ import { FaRegQuestionCircle } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { RxBorderSplit } from "react-icons/rx";
 import { TbTruckDelivery } from "react-icons/tb";
+import { client } from "@/sanity/lib/client";
+import { productWithReviewStatsQuery } from "@/sanity/queries/reviewQueries";
 import StarRating from "@/components/StarRating";
+
 const SingleProductPage = async ({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) => {
-  const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const { slug } = params;
+
+  const product = await client.fetch(productWithReviewStatsQuery, { slug });
 
   if (!product) {
     return notFound();
   }
 
+  const totalReviews = product?.reviewStats?.length || 0;
+  const ratingCounts = [0, 0, 0, 0, 0];
+  let totalRatingSum = 0;
+
+  if (totalReviews > 0) {
+    product.reviewStats.forEach((review: { rating: number }) => {
+      ratingCounts[review.rating - 1]++;
+      totalRatingSum += review.rating;
+    });
+  }
+
+  const averageRating = totalReviews > 0 ? (totalRatingSum / totalReviews) : 0;
+
   return (
     <Container className="flex flex-col md:flex-row gap-10 py-10">
       {product?.images && (
-        <ImageView images={product?.images} isStock={product?.stock} />
+        <ImageView
+          productId={product._id}
+          images={product?.images}
+          isStock={product?.stock}
+          averageRating={averageRating}
+          totalReviews={totalReviews}
+          ratingCounts={ratingCounts}
+        />
       )}
 
       <div className="w-full md:w-1/2 flex flex-col gap-5">
@@ -38,7 +60,13 @@ const SingleProductPage = async ({
           <p className="text-sm text-gray-600 tracking-wide">
             {product?.description}
           </p>
-          <StarRating productId={product._id} />
+          <StarRating
+            productId={product?._id}
+            averageRating={averageRating}
+            totalReviews={totalReviews}
+            ratingCounts={ratingCounts}
+            disableHoverEffect={false}
+          />
         </div>
 
         <div className="space-y-2 border-t border-b border-gray-200 py-5">

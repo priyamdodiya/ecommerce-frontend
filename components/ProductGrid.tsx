@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { client } from "@/sanity/lib/client";
 import NoProductAvailable from "./NoProductAvailable";
 import { Loader2 } from "lucide-react";
@@ -9,25 +9,27 @@ import Container from "./Container";
 import { productType } from "@/constants/data";
 import { Product } from "@/sanity.types";
 import HomeTabBar from "./HomeTabBar";
+import { productsWithReviewStatsQuery } from "@/sanity/queries/productQueries";
+
+interface ProductWithReviewStats extends Product {
+  reviewStats?: { rating: number }[];
+}
 
 const ProductGrid = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductWithReviewStats[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(productType[0]?.title || "");
 
   useEffect(() => {
-    const query = `*[_type == "product" && variant == $variant] | order(name desc){
-      ...,"categories": categories[]->title
-    }`;
-    const params = { variant: selectedTab.toLowerCase() };
-
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await client.fetch(query, params);
+        const response = await client.fetch(productsWithReviewStatsQuery, {
+          variant: selectedTab.toLowerCase(),
+        });
         setProducts(response);
       } catch (error) {
-        console.log("Product fetching Error", error);
+        console.error("Product fetching Error", error);
       } finally {
         setLoading(false);
       }

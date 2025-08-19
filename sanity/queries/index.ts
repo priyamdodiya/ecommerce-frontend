@@ -30,8 +30,6 @@ const getCategories = async (quantity?: number) => {
     });
     return data;
   }
-  
-  
   catch (error) {
     console.log("Error fetching categories", error);
     return [];
@@ -168,6 +166,10 @@ const getOthersBlog = async (slug: string, quantity: number) => {
     return [];
   }
 };
+
+
+
+
 export {
   getCategories,
   getAllBrands,
@@ -180,4 +182,7 @@ export {
   getSingleBlog,
   getBlogCategories,
   getOthersBlog,
+
 };
+
+

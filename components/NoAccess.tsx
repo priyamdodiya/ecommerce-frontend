@@ -1,3 +1,55 @@
+// import React from "react";
+// import {
+//   Card,
+//   CardContent,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle,
+// } from "./ui/card";
+// import Logo from "./Logo";
+// import { SignInButton, SignUpButton } from "@clerk/nextjs";
+// import { Button } from "./ui/button";
+// const NoAccess = ({
+//   details = "Log in to view your cart items and checkout. Don't miss out on your favorite products!",
+// }: {
+//   details?: string;
+// }) => {
+//   return (
+//     <div className="flex items-center justify-center py-12 md:py-32 bg-gray-100 p-4">
+//       <Card className="w-full max-w-md p-5">
+//         <CardHeader className="flex items-center flex-col">
+//           <Logo spanDesign={""}/>
+//           <CardTitle className="text-2xl font-bold text-center">
+//             Welcome Back!
+//           </CardTitle>
+//         </CardHeader>
+//         <CardContent className="space-y-4">
+//           <p className="text-center font-medium text-darkColor/80">{details}</p>
+//           <SignInButton mode="modal">
+//             <Button className="w-full" size="lg">
+//               Sign in
+//             </Button>
+//           </SignInButton>
+//         </CardContent>
+//         <CardFooter className="flex flex-col space-y-2">
+//           <div className="text-sm text-muted-foreground text-center">
+//             Don&rsquo;t have an account?
+//           </div>
+//           <SignUpButton mode="modal">
+//             <Button variant="outline" className="w-full" size="lg">
+//               Create an account
+//             </Button>
+//           </SignUpButton>
+//         </CardFooter>
+//       </Card>
+//     </div>
+//   );
+// };
+
+// export default NoAccess;
+
+
+"use client";
 import React from "react";
 import {
   Card,
@@ -9,16 +61,19 @@ import {
 import Logo from "./Logo";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
+
 const NoAccess = ({
   details = "Log in to view your cart items and checkout. Don't miss out on your favorite products!",
+  onClose,
 }: {
   details?: string;
+  onClose?: () => void;
 }) => {
   return (
-    <div className="flex items-center justify-center py-12 md:py-32 bg-gray-100 p-4">
-      <Card className="w-full max-w-md p-5">
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
         <CardHeader className="flex items-center flex-col">
-          <Logo spanDesign={""}/>
+          <Logo spanDesign={""} />
           <CardTitle className="text-2xl font-bold text-center">
             Welcome Back!
           </CardTitle>
@@ -42,6 +97,15 @@ const NoAccess = ({
           </SignUpButton>
         </CardFooter>
       </Card>
+      {/* Optional: Add a close button or click handler for the backdrop */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-white text-lg z-[51]"
+        >
+          &times;
+        </button>
+      )}
     </div>
   );
 };

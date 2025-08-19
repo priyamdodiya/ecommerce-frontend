@@ -1,3 +1,4 @@
+"use server"
 import Container from "@/components/Container";
 import ProductCard from "@/components/ProductCard";
 import Title from "@/components/Title";
@@ -6,6 +7,7 @@ import React from "react";
 
 const DealPage = async () => {
   const products =  await getDealProducts();
+console.log('✌️products --->', products);
   return (
     <div className="py-10 bg-deal-bg">
       <Container>
@@ -21,5 +23,4 @@ const DealPage = async () => {
     </div>
   );
 };
-
 export default DealPage;
