@@ -182,7 +182,6 @@ export {
   getSingleBlog,
   getBlogCategories,
   getOthersBlog,
-
 };
 
 

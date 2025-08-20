@@ -15,9 +15,21 @@ import { client } from "@/sanity/lib/client";
 import { productWithReviewStatsQuery } from "@/sanity/queries/reviewQueries";
 import StarRating from "@/components/StarRating";
 
-  const SingleProductPage = async ({ params } : { params:Promise<{ slug: string }> }) => {
-  const { slug } = await params;
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+const SingleProductPage = async ({ params }: PageProps) => {
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
+  
+  console.log('✌️slug --->', slug);
+  
   const product = await client.fetch(productWithReviewStatsQuery, { slug });
+  console.log('✌️product --->', product);
+  
   if (!product) {
     return notFound();
   }
