@@ -14,8 +14,9 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { client } from "@/sanity/lib/client";
 import { productWithReviewStatsQuery } from "@/sanity/queries/reviewQueries";
 import StarRating from "@/components/StarRating";
-const SingleProductPage = async ({ params } : { params: { slug: string } }) => {
-  const { slug } = params;
+
+  const SingleProductPage = async ({ params } : { params:Promise<{ slug: string }> }) => {
+  const { slug } = await params;
   const product = await client.fetch(productWithReviewStatsQuery, { slug });
   if (!product) {
     return notFound();
@@ -134,7 +135,3 @@ const SingleProductPage = async ({ params } : { params: { slug: string } }) => {
 };
 
 export default SingleProductPage;
-
-
-
-

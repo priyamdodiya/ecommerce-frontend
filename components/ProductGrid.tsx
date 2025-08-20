@@ -11,6 +11,7 @@ import { Product } from "@/sanity.types";
 import HomeTabBar from "./HomeTabBar";
 import { productsWithReviewStatsQuery } from "@/sanity/queries/productQueries";
 
+
 interface ProductWithReviewStats extends Product {
   reviewStats?: { rating: number }[];
 }

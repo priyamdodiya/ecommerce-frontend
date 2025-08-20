@@ -55,7 +55,6 @@ export const productWithReviewStatsQuery = groq`
     categories[]->{
       _id,
       title,
-      slug
     },
     brand->{
       _id,
