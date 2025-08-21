@@ -3,7 +3,6 @@ import Title from "@/components/Title";
 import { SINGLE_BLOG_QUERYResult } from "@/sanity.types";
 import { urlFor } from "@/sanity/lib/image";
 import {
-  getBlogCategories,
   getOthersBlog,
   getSingleBlog,
 } from "@/sanity/queries";
@@ -189,7 +188,6 @@ const SingleBlogPage = async ({
 };
 
 const BlogLeft = async ({ slug }: { slug: string }) => {
-  const categories = await getBlogCategories();
   const blogs = await getOthersBlog(slug, 5);
 
   return (
@@ -197,38 +195,42 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
       <div className="border border-lightColor p-5 rounded-md">
         <Title className="text-base">Blog Categories</Title>
         <div className="space-y-2 mt-2">
-          {categories?.map(({ blogcategories }, index) => (
-            <div key={index} className="text-lightColor flex items-center justify-between text-sm font-medium">
-              <p>{blogcategories?.[0]?.title || "No category"}</p>
+          {(blogs ?? []).map((blog, index) => (
+            <Link
+              href={`/blog/${blog.slug?.current || ""}`}
+              key={index}
+              className="text-lightColor flex items-center justify-between text-sm font-medium hover:text-shop_dark_green hoverEffect"
+            >
+              <p>{blog?.title || "No category"}</p>
               <p className="text-darkColor font-semibold">(1)</p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
       <div className="border border-lightColor p-5 rounded-md mt-10">
         <Title className="text-base">Latest Blogs</Title>
         <div className="space-y-4 mt-4">
-      {(blogs ?? []).map((blog, index) => (
-        <Link
-          href={`/blog/${blog.slug?.current || ""}`}
-          key={index}
-          className="flex items-center gap-2 group"
-        >
-          {blog.mainImage && (
-            <Image
-              src={urlFor(blog.mainImage).url()}
-              alt={blog.title || "blogImage"}
-              width={100}
-              height={100}
-              className="w-16 h-16 rounded-full object-cover border-[1px] border-shop_dark_green/10 group-hover:border-shop_dark_green hoverEffect"
-            />
-          )}
-          <p className="line-clamp-2 text-sm text-lightColor group-hover:text-shop_dark_green hoverEffect">
-            {blog.title || "Untitled"}
-          </p>
-        </Link>
-      ))}
-    </div>
+          {(blogs ?? []).map((blog, index) => (
+            <Link
+              href={`/blog/${blog.slug?.current || ""}`}
+              key={index}
+              className="flex items-center gap-2 group"
+            >
+              {blog.mainImage && (
+                <Image
+                  src={urlFor(blog.mainImage).url()}
+                  alt={blog.title || "blogImage"}
+                  width={100}
+                  height={100}
+                  className="w-16 h-16 rounded-full object-cover border-[1px] border-shop_dark_green/10 group-hover:border-shop_dark_green hoverEffect"
+                />
+              )}
+              <p className="line-clamp-2 text-sm text-lightColor group-hover:text-shop_dark_green hoverEffect">
+                {blog.title || "Untitled"}
+              </p>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
