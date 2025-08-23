@@ -53,7 +53,6 @@ export async function updateBlog({ id, title, body, imageFile }: UpdateBlogParam
   return updated as unknown as Blog;
 }
 
-// Function to get a single blog
 export async function getSingleBlog(slug: string): Promise<Blog | null> {
   const query = `*[_type == "blog" && slug.current == $slug][0]{
     _id,

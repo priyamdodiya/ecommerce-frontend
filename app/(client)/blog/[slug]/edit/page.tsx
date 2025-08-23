@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import EditBlogPage from "@/components/EditBlogPage";
 
 interface Props {
@@ -6,8 +9,13 @@ interface Props {
 
 const Page = ({ params }: Props) => {
   const { slug } = params;
-console.log('✌️slug --->', slug);
-  return <EditBlogPage slug={slug} />;
+  const router = useRouter();
+
+  const handleClose = () => {
+    router.back();
+  };
+
+  return <EditBlogPage slug={slug} onClose={handleClose} />;
 };
 
 export default Page;

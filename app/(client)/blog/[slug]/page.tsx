@@ -258,7 +258,3 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
 };
 
 export default SingleBlogPage;
-
-
-
-

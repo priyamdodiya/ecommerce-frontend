@@ -1,4 +1,3 @@
-
 import Container from "@/components/Container";
 import Title from "@/components/Title";
 import { urlFor } from "@/sanity/lib/image";
@@ -63,5 +62,4 @@ const BlogPage = async () => {
     </div>
   );
 };
-
 export default BlogPage;
