@@ -3,16 +3,11 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 import { PortableTextBlock } from "@portabletext/types";
 import { client } from "./lib/client";
 
-// Initialize the Sanity image builder
-
-
-// Initialize the Sanity image builder safely
 const builder = createImageUrlBuilder({ 
   projectId: client.config().projectId!, 
   dataset: client.config().dataset! 
 });
 
-// Safe urlFor function
 export const urlFor = (
   source: { _type: "image"; asset: { _ref: string } } | SanityImageSource | null | undefined
 ): string | null => {
@@ -20,7 +15,6 @@ export const urlFor = (
   return builder.image(source as SanityImageSource).url(); // <--- call .url() here
 };
 
-// Types
 export interface UpdateBlogParams {
   id: string;
   title: string;
@@ -38,7 +32,6 @@ export interface Blog {
   };
 }
 
-// Function to update a blog with strict types
 export async function updateBlog({ id, title, body, imageFile }: UpdateBlogParams): Promise<Blog> {
   const patch: Partial<Blog> = { title, body };
 
@@ -49,17 +42,47 @@ export async function updateBlog({ id, title, body, imageFile }: UpdateBlogParam
 
   const updated = await client.patch(id).set(patch).commit();
 
-  // Assert as unknown first to satisfy TypeScript
   return updated as unknown as Blog;
 }
 
-export async function getSingleBlog(slug: string): Promise<Blog | null> {
-  const query = `*[_type == "blog" && slug.current == $slug][0]{
-    _id,
-    title,
-    body,
-    mainImage
-  }`;
-  const blog = await client.fetch<Blog | null>(query, { slug });
-  return blog;
-}
+
+
+export const getSingleBlog = async (slug: string) => {
+  try {
+    const blog = await client.fetch(
+      `*[_type == "blog" && slug.current == $slug][0]{
+        _id,
+        title,
+        "slug": slug.current,
+        body,
+        author->{
+          _id,
+          name
+        }
+      }`,
+      { slug }
+    );
+    return blog || null;
+  } catch (error) {
+    console.error("Error fetching blog:", error);
+    return null;
+  }
+};
+
+
+
+
+// export const deleteBlog = async (slug: string) => {
+//   try {
+//     const blogId = await client.fetch(
+//       `*[_type == "blog" && slug.current == $slug][0]._id`,
+//       { slug }
+//     );
+//     if (!blogId) throw new Error("Blog not found");
+//     const deleted = await client.delete(blogId);
+//     return deleted;
+//   } catch (error) {
+//     console.error("Error deleting blog:", error);
+//     throw error;
+//   }
+// };

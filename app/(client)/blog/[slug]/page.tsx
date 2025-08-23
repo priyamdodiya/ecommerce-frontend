@@ -7,13 +7,14 @@ import {
   getSingleBlog,
 } from "@/sanity/queries";
 import dayjs from "dayjs";
-import { Calendar, ChevronLeftIcon, Pencil, Trash2 } from "lucide-react";
+import { Calendar, ChevronLeftIcon, Pencil } from "lucide-react";
 import { PortableText } from "next-sanity";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import React from "react";
 import { auth } from "@clerk/nextjs/server";
+import { DeleteBlogButton } from "@/components/DeleteBlogButton";
 
 const SingleBlogPage = async ({
   params,
@@ -61,12 +62,11 @@ const SingleBlogPage = async ({
               <p className="flex items-center gap-2 text-lightColor relative group hover:cursor-pointer hover:text-shop_dark_green hoverEffect">
                 {isAuthor ? (
                   <span className="flex items-center gap-2">
-                    {/* <Link href={`/blog/${blog.slug?.current}/edit`}> */}
                     <Link href={`/blog/${blog.slug}/edit`}>
                       <Pencil size={22} className="hover:text-blue-500 cursor-pointer" />
                     </Link>
                     {blog?.author?.name} (You)
-                    <Trash2 size={15} className="hover:text-red-500" />
+                    <DeleteBlogButton slug={blog.slug?.current || ""} />
                   </span>
                 ) : (
                   <span>{blog?.author?.name}</span>
