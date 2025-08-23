@@ -1,3 +1,4 @@
+
 import Container from "@/components/Container";
 import Title from "@/components/Title";
 import { urlFor } from "@/sanity/lib/image";
@@ -7,9 +8,9 @@ import { Calendar } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-
+import { BlogWithCategoryTitles } from "@/sanity.types";
 const BlogPage = async () => {
-  const blogs = await getAllBlogs(6);
+  const blogs = await getAllBlogs(6) as BlogWithCategoryTitles[];
 
   return (
     <div>
@@ -18,15 +19,17 @@ const BlogPage = async () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 md:mt-10">
           {blogs?.map((blog) => (
             <div key={blog?._id} className="rounded-md overflow-hidden group">
-              {blog?.mainImage && (
-                <Image
-                  src={urlFor(blog?.mainImage).url()}
-                  alt="blogImage"
-                  width={500}
-                  height={500}
-                  className="w-full max-h-80 object-cover"
-                />
-              )}
+              <Link href={`/blog/${blog?.slug?.current}`}>
+                {blog?.mainImage && (
+                  <Image
+                    src={urlFor(blog?.mainImage).url()}
+                    alt="blogImage"
+                    width={500}
+                    height={500}
+                    className="w-full max-h-80 object-cover"
+                  />
+                )}
+              </Link>
               <div className="bg-gray-100 p-5">
                 <div className="text-xs flex items-center gap-5">
                   <div className="flex items-center relative group cursor-pointer">

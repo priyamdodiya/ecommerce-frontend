@@ -49,19 +49,29 @@ const Shop = ({ categories, brands }: Props) => {
           maxPrice = max;
         }
 
-        const query = `
-          *[_type == 'product' 
-            && (!defined($selectedCategory) || references(*[_type == "category" && slug.current == $selectedCategory]._id))
-            && (!defined($selectedBrand) || references(*[_type == "brand" && slug.current == $selectedBrand]._id))
-            && price >= $minPrice && price <= $maxPrice
-          ] 
-          | order(name asc) {
-            ...,
-            "reviewStats": *[_type == "review" && product._ref == ^._id] {
-              rating
-            }
-          }
-        `;
+  const query = `
+  *[_type == 'product' 
+    && (!defined($selectedCategory) || references(*[_type == "category" && slug.current == $selectedCategory]._id))
+    && (!defined($selectedBrand) || references(*[_type == "brand" && slug.current == $selectedBrand]._id))
+    && price >= $minPrice && price <= $maxPrice
+  ] 
+  | order(name asc) {
+    ...,
+    categories[]->{
+      _id,
+      "title": coalesce(title, name), // 👈 normalize title
+      slug
+    },
+    brand->{
+      _id,
+      "title": coalesce(title, name), // 👈 normalize title
+      slug
+    },
+    "reviewStats": *[_type == "review" && product._ref == ^._id] {
+      rating
+    }
+  }
+`;
 
         const data = await client.fetch<ProductWithReviewStats[]>(
           query,
@@ -91,17 +101,17 @@ const Shop = ({ categories, brands }: Props) => {
             {(selectedCategory !== null ||
               selectedBrand !== null ||
               selectedPrice !== null) && (
-              <button
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setSelectedBrand(null);
-                  setSelectedPrice(null);
-                }}
-                className="text-shop_dark_green underline text-sm mt-2 font-medium hover:text-darkRed hoverEffect"
-              >
-                Reset Filters
-              </button>
-            )}
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSelectedBrand(null);
+                    setSelectedPrice(null);
+                  }}
+                  className="text-shop_dark_green underline text-sm mt-2 font-medium hover:text-darkRed hoverEffect"
+                >
+                  Reset Filters
+                </button>
+              )}
           </div>
         </div>
 
@@ -123,7 +133,6 @@ const Shop = ({ categories, brands }: Props) => {
             />
           </div>
 
-          {/* Products Grid */}
           <div className="flex-1 pt-5">
             <div className="h-[calc(100vh-160px)] overflow-y-auto pr-2 scrollbar-hide">
               {loading ? (
@@ -151,3 +160,6 @@ const Shop = ({ categories, brands }: Props) => {
 };
 
 export default Shop;
+
+
+

@@ -3,17 +3,17 @@ import Title from "@/components/Title";
 import { SINGLE_BLOG_QUERYResult } from "@/sanity.types";
 import { urlFor } from "@/sanity/lib/image";
 import {
-  getBlogCategories,
   getOthersBlog,
   getSingleBlog,
 } from "@/sanity/queries";
 import dayjs from "dayjs";
-import { Calendar, ChevronLeftIcon, Pencil } from "lucide-react";
+import { Calendar, ChevronLeftIcon, Pencil, Trash2 } from "lucide-react";
 import { PortableText } from "next-sanity";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import React from "react";
+import { auth } from "@clerk/nextjs/server";
 
 const SingleBlogPage = async ({
   params,
@@ -21,8 +21,17 @@ const SingleBlogPage = async ({
   params: Promise<{ slug: string }>;
 }) => {
   const { slug } = await params;
+  console.log('✌️slug --->', slug);
   const blog: SINGLE_BLOG_QUERYResult = await getSingleBlog(slug);
+  console.log('✌️blog --->', blog);
   if (!blog) return notFound();
+
+  const { userId } = await auth();
+  console.log('✌️userId --->', userId);
+
+  const isAuthor = blog?.author?.clerkUserId === userId;
+  console.log('✌️isAuthor --->', isAuthor);
+
   return (
     <div className="py-10">
       <Container className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -49,8 +58,19 @@ const SingleBlogPage = async ({
                 ))}
                 <span className="absolute left-0 -bottom-1.5 bg-green-300/30 inline-block w-full h-[2px] group-hover:bg-green-800 hover:cursor-pointer transition-all duration-300" />
               </div>
-              <p className="flex items-center gap-1 text-lightColor relative group hover:cursor-pointer hover:text-shop_dark_green hoverEffect">
-                <Pencil size={15} /> {blog?.author?.name}
+              <p className="flex items-center gap-2 text-lightColor relative group hover:cursor-pointer hover:text-shop_dark_green hoverEffect">
+                {isAuthor ? (
+                  <span className="flex items-center gap-2">
+                    {/* <Link href={`/blog/${blog.slug?.current}/edit`}> */}
+                    <Link href={`/blog/${blog.slug}/edit`}>
+                      <Pencil size={22} className="hover:text-blue-500 cursor-pointer" />
+                    </Link>
+                    {blog?.author?.name} (You)
+                    <Trash2 size={15} className="hover:text-red-500" />
+                  </span>
+                ) : (
+                  <span>{blog?.author?.name}</span>
+                )}
                 <span className="absolute left-0 -bottom-1.5 bg-lightColor/30 inline-block w-full h-[2px] group-hover:bg-shop_dark_green hoverEffect" />
               </p>
               <p className="flex items-center gap-1 text-lightColor relative group hover:cursor-pointer hover:text-shop_dark_green hoverEffect">
@@ -189,7 +209,6 @@ const SingleBlogPage = async ({
 };
 
 const BlogLeft = async ({ slug }: { slug: string }) => {
-  const categories = await getBlogCategories();
   const blogs = await getOthersBlog(slug, 5);
 
   return (
@@ -197,41 +216,49 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
       <div className="border border-lightColor p-5 rounded-md">
         <Title className="text-base">Blog Categories</Title>
         <div className="space-y-2 mt-2">
-          {categories?.map(({ blogcategories }, index) => (
-            <div key={index} className="text-lightColor flex items-center justify-between text-sm font-medium">
-              <p>{blogcategories?.[0]?.title || "No category"}</p>
+          {(blogs ?? []).map((blog, index) => (
+            <Link
+              href={`/blog/${blog.slug?.current || ""}`}
+              key={index}
+              className="text-lightColor flex items-center justify-between text-sm font-medium hover:text-shop_dark_green hoverEffect"
+            >
+              <p>{blog?.title || "No category"}</p>
               <p className="text-darkColor font-semibold">(1)</p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
       <div className="border border-lightColor p-5 rounded-md mt-10">
         <Title className="text-base">Latest Blogs</Title>
         <div className="space-y-4 mt-4">
-      {(blogs ?? []).map((blog, index) => (
-        <Link
-          href={`/blog/${blog.slug?.current || ""}`}
-          key={index}
-          className="flex items-center gap-2 group"
-        >
-          {blog.mainImage && (
-            <Image
-              src={urlFor(blog.mainImage).url()}
-              alt={blog.title || "blogImage"}
-              width={100}
-              height={100}
-              className="w-16 h-16 rounded-full object-cover border-[1px] border-shop_dark_green/10 group-hover:border-shop_dark_green hoverEffect"
-            />
-          )}
-          <p className="line-clamp-2 text-sm text-lightColor group-hover:text-shop_dark_green hoverEffect">
-            {blog.title || "Untitled"}
-          </p>
-        </Link>
-      ))}
-    </div>
+          {(blogs ?? []).map((blog, index) => (
+            <Link
+              href={`/blog/${blog.slug?.current || ""}`}
+              key={index}
+              className="flex items-center gap-2 group"
+            >
+              {blog.mainImage && (
+                <Image
+                  src={urlFor(blog.mainImage).url()}
+                  alt={blog.title || "blogImage"}
+                  width={100}
+                  height={100}
+                  className="w-16 h-16 rounded-full object-cover border-[1px] border-shop_dark_green/10 group-hover:border-shop_dark_green hoverEffect"
+                />
+              )}
+              <p className="line-clamp-2 text-sm text-lightColor group-hover:text-shop_dark_green hoverEffect">
+                {blog.title || "Untitled"}
+              </p>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
 export default SingleBlogPage;
+
+
+
+

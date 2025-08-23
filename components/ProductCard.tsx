@@ -40,8 +40,9 @@ const ProductCard = ({ product }: { product: ProductWithReviewStats }) => {
               width={500}
               height={500}
               priority
-              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500  
-              ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
+              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500  
+              ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"
+                }`}
             />
           </Link>
         )}
@@ -67,12 +68,27 @@ const ProductCard = ({ product }: { product: ProductWithReviewStats }) => {
       </div>
 
       <div className="p-3 flex flex-col gap-2">
+
         {product?.categories && (
           <p className="uppercase line-clamp-1 text-xs font-medium text-lightText">
-            {product.categories.map((cat) => cat).join(", ")}
+            {product.categories
+              .map((cat: unknown) => {
+                if (!cat) return "";
+
+                if (typeof cat === "object" && cat !== null) {
+                  const c = cat as { title?: string; name?: string };
+                  return c.title || c.name || "";
+                }
+                if (typeof cat === "string") {
+                  return cat;
+                }
+
+                return "";
+              })
+              .filter(Boolean)
+              .join(", ")}
           </p>
         )}
-
         <Title className="text-sm line-clamp-1">{product?.name}</Title>
         <StarRating
           productId={product._id}
@@ -85,11 +101,10 @@ const ProductCard = ({ product }: { product: ProductWithReviewStats }) => {
         <div className="flex items-center gap-2.5">
           <p className="font-medium">In Stock</p>
           <p
-            className={`${
-              product?.stock === 0
+            className={`${product?.stock === 0
                 ? "text-red-600"
                 : "text-shop_dark_green/80 font-semibold"
-            }`}
+              }`}
           >
             {(product?.stock as number) > 0 ? product?.stock : "unavailable"}
           </p>

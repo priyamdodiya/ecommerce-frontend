@@ -9,7 +9,7 @@ interface StarRatingProps {
   averageRating: number;
   totalReviews: number;
   ratingCounts: number[];
-  disableHoverEffect?: boolean; // New prop to control hover behavior
+  disableHoverEffect?: boolean;
 }
 
 const StarRating = ({
