@@ -32,4 +32,3 @@ export const DeleteBlogButton = ({ slug }: { slug: string }) => {
   );
 };
 
-

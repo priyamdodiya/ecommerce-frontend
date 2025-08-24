@@ -763,91 +763,7 @@ export type GET_ALL_BLOGResult = Array<{
     _key: string;
   }>;
 }>;
-// Variable: SINGLE_BLOG_QUERY
-// Query: *[_type == "blog" && slug.current == $slug][0]{  ...,     author->{    name,    image,  },  blogcategories[]->{    title,    "slug": slug.current,  },}
 
-
-
-
-
-// export type SINGLE_BLOG_QUERYResult = {
-//   _id: string;
-//   _type: "blog";
-//   _createdAt: string;
-//   _updatedAt: string;
-//   _rev: string;
-//   title?: string;
-//   slug?: Slug;
-//   author: {
-//     name: string | null;
-//     image: {
-//       asset?: {
-//         _ref: string;
-//         _type: "reference";
-//         _weak?: boolean;
-//         [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-//       };
-//       media?: unknown;
-//       hotspot?: SanityImageHotspot;
-//       crop?: SanityImageCrop;
-//       _type: "image";
-//     } | null;
-//   } | null;
-//   mainImage?: {
-//     asset?: {
-//       _ref: string;
-//       _type: "reference";
-//       _weak?: boolean;
-//       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-//     };
-//     media?: unknown;
-//     hotspot?: SanityImageHotspot;
-//     crop?: SanityImageCrop;
-//     _type: "image";
-//   };
-//   blogcategories: Array<{
-//     title: string | null;
-//     slug: string | null;
-//   }> | null;
-//   publishedAt?: string;
-//   isLatest?: boolean;
-//   body?: Array<{
-//     children?: Array<{
-//       marks?: Array<string>;
-//       text?: string;
-//       _type: "span";
-//       _key: string;
-//     }>;
-//     style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
-//     listItem?: "bullet";
-//     markDefs?: Array<{
-//       href?: string;
-//       _type: "link";
-//       _key: string;
-//     }>;
-//     level?: number;
-//     _type: "block";
-//     _key: string;
-//   } | {
-//     asset?: {
-//       _ref: string;
-//       _type: "reference";
-//       _weak?: boolean;
-//       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-//     };
-//     media?: unknown;
-//     hotspot?: SanityImageHotspot;
-//     crop?: SanityImageCrop;
-//     alt?: string;
-//     _type: "image";
-//     _key: string;
-//   }>;
-// } | null;
-
-
-
-// src/sanity.types.ts (or wherever your types are defined)
-// NOTE: You'll need to manually add clerkUserId to the author type
 export type SINGLE_BLOG_QUERYResult = {
   _id: string;
   _type: "blog";
@@ -858,7 +774,7 @@ export type SINGLE_BLOG_QUERYResult = {
   slug?: Slug;
   author: {
     name: string | null;
-    clerkUserId: string | null; 
+    clerkUserId: string | null;
     image: {
       asset?: {
         _ref: string;

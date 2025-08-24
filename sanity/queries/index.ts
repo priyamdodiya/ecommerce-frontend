@@ -161,9 +161,6 @@ const getOthersBlog = async (slug: string, quantity: number) => {
 };
 
 
-
-
-
 export {
   getCategories,
   getAllBrands,

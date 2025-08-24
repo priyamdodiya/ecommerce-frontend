@@ -127,6 +127,7 @@ const EditBlogPage = ({ onClose, slug }: BlogEditFormProps) => {
       if (res.ok) {
         alert("Blog updated successfully!");
         onClose();
+        router.refresh();
         router.push(`/blog/${formData.slug}`);
       } else {
         throw new Error(result.error || "Failed to update blog");
