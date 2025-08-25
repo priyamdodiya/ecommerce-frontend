@@ -27,11 +27,7 @@ interface Review {
   createdAt: string;
 }
 
-// interface PageProps {
-//   params: {
-//     slug: string;
-//   };
-// }
+
 
 interface PageProps {
   params: Promise<{

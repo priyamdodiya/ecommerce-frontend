@@ -77,9 +77,9 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 import { PortableTextBlock } from "@portabletext/types";
 import { client } from "./lib/client";
 
-const builder = createImageUrlBuilder({ 
-  projectId: client.config().projectId!, 
-  dataset: client.config().dataset! 
+const builder = createImageUrlBuilder({
+  projectId: client.config().projectId!,
+  dataset: client.config().dataset!
 });
 
 export const urlFor = (
@@ -111,7 +111,6 @@ export interface Blog {
 export async function updateBlog({ id, title, body, publishedAt, imageFile }: UpdateBlogParams): Promise<Blog> {
   const patch: Partial<Blog> = { title, body };
 
-  // ✅ include publishedAt
   if (publishedAt) {
     patch.publishedAt = publishedAt;
   }

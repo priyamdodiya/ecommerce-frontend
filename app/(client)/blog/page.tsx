@@ -10,7 +10,7 @@ import React from "react";
 import { BlogWithCategoryTitles } from "@/sanity.types";
 const BlogPage = async () => {
   const blogs = await getAllBlogs(6) as BlogWithCategoryTitles[];
-
+  
   return (
     <div>
       <Container>

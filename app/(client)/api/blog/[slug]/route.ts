@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getSingleBlog } from "@/sanity/queries";
+import { NextResponse,NextRequest } from "next/server";
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
   try {
