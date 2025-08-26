@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import EditBlogPage from "@/components/EditBlogPage";
+import { use } from "react";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-const Page = ({ params }: Props) => {
-  const { slug } = params;
+const Page = ({params}:Props) => {
+  const { slug } = use(params);
   const router = useRouter();
 
   const handleClose = () => {

@@ -17,10 +17,10 @@ import { auth } from "@clerk/nextjs/server";
 import { DeleteBlogButton } from "@/components/DeleteBlogButton";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 const SingleBlogPage = async ({ params }: PageProps) => {
-  const { slug } = params;
+  const { slug } = await params;
   console.log('✌️slug --->', slug);
   const blog: SINGLE_BLOG_QUERYResult = await getSingleBlog(slug);
   console.log('✌️blog --->', blog);
