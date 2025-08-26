@@ -6,7 +6,7 @@ export const DeleteBlogButton = ({ slug }: { slug: string }) => {
   const router = useRouter();
 
   const handleDelete = async () => {
-    if (!slug) return; 
+    if (!slug) return;
 
     if (!confirm("Are you sure you want to delete this blog?")) return;
 
@@ -31,4 +31,6 @@ export const DeleteBlogButton = ({ slug }: { slug: string }) => {
     />
   );
 };
+
+
 

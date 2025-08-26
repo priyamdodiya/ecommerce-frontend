@@ -20,11 +20,15 @@ interface PageProps {
   params: { slug: string };
 }
 const SingleBlogPage = async ({ params }: PageProps) => {
-  const { slug } =  params;
+  const { slug } = params;
+  console.log('✌️slug --->', slug);
   const blog: SINGLE_BLOG_QUERYResult = await getSingleBlog(slug);
+  console.log('✌️blog --->', blog);
   if (!blog) return notFound();
   const { userId } = await auth();
+console.log('✌️userId --->', userId);
   const isAuthor = blog?.author?.clerkUserId === userId;
+console.log('✌️isAuthor --->', isAuthor);
   return (
     <div className="py-10">
       <Container className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -250,8 +254,3 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
 };
 
 export default SingleBlogPage;
-
-
-
-
-
