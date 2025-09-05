@@ -8,7 +8,6 @@ interface Props {
 }
 
 const HomeTabBar = ({selectedTab,onTabSelect} : Props) => {
-console.log('✌️selectedTab --->', selectedTab);
     return (
         <div className='flex items-center justify-between flex-wrap gap-5'>
             <div className='flex items-center gap-3 text-sm font-semibold'>
