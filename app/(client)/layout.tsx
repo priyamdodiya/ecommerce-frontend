@@ -16,6 +16,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
       <body className="font-poppins antialiased">
         <div className="flex flex-col">

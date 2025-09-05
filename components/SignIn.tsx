@@ -6,14 +6,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store/store";
 import { logout } from "../app/store/slices/loginSlice";
 import { useRouter } from "next/navigation";
-
 const SignIn = () => {
   const { user } = useSelector((state: RootState) => state.login);
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -43,7 +41,7 @@ const SignIn = () => {
         />
 
         {menuOpen && (
-          <div className="absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-lg py-2 z-50">
+          <div className="absolute right-0 mt-2 w-40 bg-white border rounded-sm shadow-lg py-2 z-50">
             <Link
               href="/profile"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
 import { loginUser, clearLoginError } from "../store/slices/loginSlice";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 type FormValues = {
   username: string;
@@ -32,6 +33,8 @@ const Login = () => {
   useEffect(() => {
     if (token && user) {
       toast.success("Login successful!");
+      Cookies.set("token", token);
+    Cookies.set("role", user.role);
       if(user.role === "ADMIN"){
         router.push("/admin");
       }else{

@@ -2,6 +2,8 @@
 
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import NewHeader from "./navbar/NewHeader";
+
 const AdminPage = () => {
   const { user } = useSelector((state: RootState) => state.login);
 
@@ -14,10 +16,13 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold text-green-600">
-        Hello Admin, {user.fullName} 👋
-      </h1>
+    <div className="min-h-screen bg-gray-100">
+      <NewHeader />
+      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
+        <h1 className="text-3xl font-bold text-green-600">
+          Hello Admin, {user.fullName} 👋
+        </h1>
+      </div>
     </div>
   );
 };

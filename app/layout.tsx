@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import { store, persistor } from "./store/store";
 import { PersistGate } from "redux-persist/integration/react";
+import "../app/globals.css";
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
