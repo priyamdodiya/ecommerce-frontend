@@ -4,7 +4,6 @@ import registerReducer from "./slices/registerSlice";
 import {persistStore, persistReducer} from "redux-persist"
 import  storage  from "redux-persist/lib/storage";
 import productReducer from "./slices/productSlice";
-
 const rootReducer = combineReducers({
   login : loginReducer,
   register : registerReducer,

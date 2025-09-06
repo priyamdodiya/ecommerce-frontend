@@ -116,10 +116,8 @@ const ProductCard = ({ product }: { product: ProductWithReviewStats }) => {
           className="text-sm"
         />
       </div>
-
       <AddToCartButton product={product} className="w-36 rounded-full" />
     </div>
   );
 };
-
 export default ProductCard;
