@@ -28,7 +28,7 @@ const NewHeader = () => {
                         {open && (
                             <div className="absolute top-8 left-0 w-48 bg-white text-gray-800 shadow-lg rounded-md py-2 z-50">
                                 <Link
-                                    href="/products"
+                                    href="/admin/products"
                                     className="block px-4 py-2 hover:bg-gray-100"
                                     onClick={() => setOpen(false)}
                                 >
