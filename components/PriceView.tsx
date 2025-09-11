@@ -15,3 +15,5 @@ const PriceView = ({price,discount} : Props) => {
 }
 
 export default PriceView
+
+

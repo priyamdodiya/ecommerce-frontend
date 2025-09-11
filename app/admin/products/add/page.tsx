@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store/store";
-import { resetProductState } from "@/app/store/slices/productSlice";
+import { resetProductState } from "@/app/store/slices/admin/productSlice";
 import axios from "axios";
 import { NextApiResponse } from "next";
 

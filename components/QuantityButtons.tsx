@@ -1,57 +1,66 @@
-import { Product } from "@/sanity.types";
-import useStore from "@/store";
+"use client";
 import React from "react";
 import { Button } from "./ui/button";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store/store";
+import { updateCartQuantity, deleteCartItem } from "@/app/store/slices/user/cartSlice";
+import { toast } from "react-hot-toast";
 
-interface Props {
-  product: Product;
+interface QuantityButtonsProps {
+  value: number;
+  onChange: (newValue: number) => void;
+  cartId: number;
   className?: string;
+  stock: number;
+  onRemove?:()=>void;
 }
-const QuantityButtons = ({ product, className }: Props) => {
-  const { addItem, removeItem, getItemCount } = useStore();
-  const itemCount = getItemCount(product?._id);
-  const isOutOfStock = product?.stock === 0;
 
-  const handleRemoveProduct = () => {
-    removeItem(product?._id);
-    if (itemCount > 1) {
-      toast.success("Quantity Decreased successfully!");
+const QuantityButtons: React.FC<QuantityButtonsProps> = ({ value, onChange, cartId, stock, className, onRemove }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const handleDecrease = async () => {
+    if (value > 1) {
+      const newValue = value - 1;
+      onChange(newValue);
+      await dispatch(updateCartQuantity({ cartId, quantity: newValue }));
+      toast.success(`Quantity decreased to ${newValue}`);
     } else {
-      toast.success(`${product?.name?.substring(0, 12)} removed successfully!`);
+      await dispatch(deleteCartItem({ cartId }));
+      toast.success("Item removed from cart");
+      onChange(0);
+      if(onRemove) onRemove();
     }
   };
 
-  const handleAddToCart = () => {
-    if ((product?.stock as number) > itemCount) {
-      addItem(product);
-      toast.success("Quantity Increased successfully!");
-    } else {
-      toast.error("Can not add more than available stock");
+  const handleIncrease = async () => {
+    if (value >= stock) {
+      toast.error(`Only ${stock} items available in stock!`);
+      return;
     }
+    const newValue = value + 1;
+    onChange(newValue);
+    await dispatch(updateCartQuantity({ cartId, quantity: newValue }));
+    toast.success(`Quantity increased to ${newValue}`);
   };
+
+  if (value === 0) return null;
 
   return (
     <div className={cn("flex items-center gap-1 pb-1 text-base", className)}>
       <Button
-        onClick={handleRemoveProduct}
+        onClick={handleDecrease}
         variant="outline"
         size="icon"
-        disabled={itemCount === 0 || isOutOfStock}
         className="w-6 h-6 border-[1px] hover:bg-shop_dark_green/20 hoverEffect"
       >
         <Minus />
       </Button>
-      <span className="font-semibold text-sm w-6 text-center text-darkColor">
-        {itemCount}
-      </span>
+      <span className="font-semibold text-sm w-6 text-center text-darkColor">{value}</span>
       <Button
-        onClick={handleAddToCart}
+        onClick={handleIncrease}
         variant="outline"
         size="icon"
-        disabled={isOutOfStock}
         className="w-6 h-6 border-[1px] hover:bg-shop_dark_green/20 hoverEffect"
       >
         <Plus />

@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store/store";
 import { logout } from "../app/store/slices/loginSlice";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 const SignIn = () => {
   const { user } = useSelector((state: RootState) => state.login);
   const dispatch = useDispatch();
@@ -24,8 +25,11 @@ const SignIn = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+     router.push("/login");
+    Cookies.remove("token");
     setMenuOpen(false);
-    router.push("/login");
+   
+  Cookies.remove("role");
   };
 
   if (user) {
