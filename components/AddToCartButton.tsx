@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store/store";
-import { addToCart, CartItem } from "@/app/store/slices/user/cartSlice";
+import { addToCart } from "@/app/store/slices/user/cartSlice";
 import { Product } from "@/app/store/slices/user/productSlice";
 import { cn } from "@/lib/utils";
 import { ShoppingBag } from "lucide-react";
@@ -20,78 +20,70 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   className,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.cart);
+  const { items } = useSelector((state: RootState) => state.cart);
 
-  const [itemCount, setItemCount] = React.useState(1);
-  const [added, setAdded] = React.useState(false);
-  const [cartItem, setCartItem] = React.useState<CartItem | null>(null);
+  const [localLoading, setLocalLoading] = useState(false);
+
+  // ✅ check if product already exists in cart
+  const cartItem = items.find((i) => i.productId === product.id);
 
   const discountAmount =
     product?.discount && product.price
-      ? (product.price * product.discount) / 100
+      ? (Number(product.price) * product.discount) / 100
       : 0;
 
-  const finalPrice = product?.price ? product.price - discountAmount : 0;
+  const finalPrice = product?.price
+    ? Number(product.price) - discountAmount
+    : 0;
 
   const handleAddToCart = async () => {
     if (!product?.id) return;
-
+    setLocalLoading(true);
     const resultAction = await dispatch(
-      addToCart({ productId: product.id, quantity: itemCount })
+      addToCart({ productId: product.id, quantity: 1 })
     );
-
-    if (addToCart.fulfilled.match(resultAction)) {
-      setCartItem(resultAction.payload);
-      setAdded(true);
-    }
+    setLocalLoading(false);
   };
 
   const isOutOfStock = (product?.stock ?? 0) === 0;
 
+  if (cartItem) {
+    return (
+      <div className="w-full space-y-3">
+        <div className="text-sm">
+          <span className="text-xs text-darkColor/80">Quantity</span>
+          <QuantityButtons
+            value={cartItem.quantity}
+            onChange={() => {}}
+            cartId={cartItem.id}
+            stock={product.stock}
+          />
+        </div>
+
+        <div className="flex items-center justify-between border-t pt-1">
+          <span className="text-xs font-semibold">Subtotal</span>
+          <PriceFormatter amount={finalPrice * cartItem.quantity} />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full space-y-3">
-      {added && cartItem && (
-        <>
-          <div className="text-sm">
-            <span className="text-xs text-darkColor/80">Quantity</span>
-            <QuantityButtons
-              value={itemCount}
-              onChange={setItemCount}
-              cartId={cartItem.id}
-              stock={product.stock}
-              onRemove={()=>{
-                setAdded(false);
-                setCartItem(null);
-                setItemCount(1);
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between border-t pt-1">
-            <span className="text-xs font-semibold">Subtotal</span>
-            <PriceFormatter amount={finalPrice * itemCount} />
-          </div>
-        </>
+    <Button
+      onClick={handleAddToCart}
+      disabled={localLoading || isOutOfStock}
+      className={cn(
+        "w-full bg-shop_dark_green/80 text-lightBg shadow-none border border-shop_dark_green/80 font-semibold tracking-wide text-white hover:bg-shop_dark_green hover:border-shop_dark_green hoverEffect",
+        className
       )}
-
-      {!added && (
-        <Button
-          onClick={handleAddToCart}
-          disabled={loading || isOutOfStock}
-          className={cn(
-            "w-full bg-shop_dark_green/80 text-lightBg shadow-none border border-shop_dark_green/80 font-semibold tracking-wide text-white hover:bg-shop_dark_green hover:border-shop_dark_green hoverEffect",
-            className
-          )}
-        >
-          <ShoppingBag className="mr-2 h-4 w-4" />
-          {loading
-            ? "Adding..."
-            : isOutOfStock
-            ? "Out of Stock"
-            : "Add to Cart"}
-        </Button>
-      )}
-    </div>
+    >
+      <ShoppingBag className="mr-2 h-4 w-4" />
+      {localLoading
+        ? "Adding..."
+        : isOutOfStock
+        ? "Out of Stock"
+        : "Add to Cart"}
+    </Button>
   );
 };
 
