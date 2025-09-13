@@ -155,7 +155,7 @@ async function updateStockLevels(
         continue;
       }
 
-      const newStock = Math.max(product.stock - quantity, 0); // Ensure stock does not go negative
+      const newStock = Math.max(product.stock - quantity, 0);
 
       await backendClient.patch(productId).set({ stock: newStock }).commit();
     } catch (error) {

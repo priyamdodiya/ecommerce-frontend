@@ -9,23 +9,21 @@ import {
   deleteCartItem,
 } from "@/app/store/slices/user/cartSlice";
 import { getProducts } from "@/app/store/slices/user/productSlice";
-
 import Container from "@/components/Container";
 import EmptyCart from "@/components/EmptyCart";
 import PriceFormatter from "@/components/PriceFormatter";
-
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Trash } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import axios from "axios";
+import { loadStripe } from "@stripe/stripe-js";
 
 const CartPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector(selectCart);
-
-  // ✅ Safe fallback to empty array so `find` never fails
   const { data: productsData = [], loading: productsLoading } = useSelector(
     (state: RootState) =>
       state.userProduct.products || { data: [], loading: false }
@@ -47,23 +45,71 @@ const CartPage = () => {
   items.forEach((item) => {
     const product = productsData?.find((p) => p.id === item.productId);
     if (!product) return;
-
     const quantity = item.quantity;
     const productPrice = product.price;
     const productDiscountPrice =
       product.discountPrice ??
       product.price - (product.price * (product.discount ?? 0)) / 100;
-
     subtotal += productPrice * quantity;
     discountTotal += (productPrice - productDiscountPrice) * quantity;
   });
-
   const total = subtotal - discountTotal;
+
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLICK_KEY!);
+
+  const handleCheckout = async () => {
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) {
+        console.log("stripe failed to load");
+        return;
+      }
+
+      const cartData = items.map((item) => {
+        const product = productsData.find((p) => p.id === item.productId);
+        return {
+          product: {
+            name: product?.name,
+            image: product?.image,
+          },
+          price: product?.price,
+          quantity: item.quantity,
+        };
+      });
+
+      const res = await axios.post(
+        "http://localhost:3001/api/payment/checkout",
+        {
+          cartItems: cartData,
+          orderSummary: {
+            subTotal: subtotal,
+            discount: discountTotal,
+            total: total,
+          },
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const { id, url } = res.data;
+      if (!id || !url) {
+        console.log("Checkout session not created properly");
+        return;
+      }
+      window.location.href = url;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
 
   return (
     <div className="bg-gray-50 pb-52 md:pb-10">
       <Container>
-        {/* Header */}
         <div className="flex items-center gap-2 py-5">
           <ShoppingBag className="text-darkColor" />
           <h1 className="text-2xl font-bold">Shopping Cart</h1>
@@ -73,7 +119,6 @@ const CartPage = () => {
           <EmptyCart />
         ) : (
           <div className="grid lg:grid-cols-3 md:gap-8 mb-6">
-            {/* Cart Items */}
             <div className="lg:col-span-2 rounded-lg">
               <div className="border bg-white rounded-md">
                 {items.map((item, index) => {
@@ -87,17 +132,14 @@ const CartPage = () => {
                   const productDiscountPrice =
                     product.discountPrice ??
                     product.price -
-                      (product.price * (product.discount ?? 0)) / 100;
-                  const itemTotal = productDiscountPrice * quantity;
+                    (product.price * (product.discount ?? 0)) / 100;
 
                   return (
                     <div
                       key={item.id}
-                      className={`p-2.5 flex items-center justify-between gap-5 border-b ${
-                        index === items.length - 1 ? "border-b-0" : ""
-                      }`}
+                      className={`p-2.5 flex items-center justify-between gap-5 border-b ${index === items.length - 1 ? "border-b-0" : ""
+                        }`}
                     >
-                      {/* Product Image + Details */}
                       <div className="flex flex-1 items-start gap-2 h-36 md:h-44">
                         <Link
                           href={`/product/${product.id}`}
@@ -145,7 +187,6 @@ const CartPage = () => {
                         </div>
                       </div>
 
-                      {/* Price + Quantity */}
                       <div className="flex flex-col items-start justify-between h-36 md:h-44 p-1">
                         <span className="font-bold text-lg">
                           <PriceFormatter
@@ -199,8 +240,6 @@ const CartPage = () => {
                     </div>
                   );
                 })}
-
-                {/* Reset Cart Button */}
                 <div className="flex justify-between items-center border-t pt-3 mt-3">
                   <Button className="m-5 font-semibold" variant="destructive">
                     Reset Cart
@@ -208,8 +247,6 @@ const CartPage = () => {
                 </div>
               </div>
             </div>
-
-            {/* Order Summary */}
             <div>
               <div className="lg:col-span-1">
                 <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg border">
@@ -232,6 +269,7 @@ const CartPage = () => {
                       />
                     </div>
                     <Button
+                      onClick={handleCheckout}
                       className="w-full rounded-full font-semibold tracking-wide hoverEffect"
                       size="lg"
                     >
@@ -240,7 +278,6 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                {/* Delivery Address */}
                 <div className="bg-white rounded-md mt-5">
                   <Card>
                     <CardHeader>
@@ -257,42 +294,8 @@ const CartPage = () => {
             </div>
           </div>
         )}
-
-        {/* Mobile Order Summary */}
-        {items.length > 0 && (
-          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white pt-2">
-            <div className="bg-white p-4 rounded-lg border mx-4">
-              <h2>Order Summary</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>SubTotal</span>
-                  <PriceFormatter amount={subtotal} />
-                </div>
-                <div className="flex items-center justify-between text-green-600">
-                  <span>Discount</span>
-                  <PriceFormatter amount={discountTotal} />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between font-semibold text-lg">
-                  <span>Total</span>
-                  <PriceFormatter
-                    amount={total}
-                    className="text-lg font-bold text-black"
-                  />
-                </div>
-                <Button
-                  className="w-full rounded-full font-semibold tracking-wide hoverEffect"
-                  size="lg"
-                >
-                  Proceed to Checkout
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </Container>
     </div>
   );
 };
-
 export default CartPage;

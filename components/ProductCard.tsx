@@ -70,7 +70,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.description}
           </p>
         )}
-
         <div className="flex items-center gap-2.5">
           <p className="font-medium">In Stock</p>
           <p
