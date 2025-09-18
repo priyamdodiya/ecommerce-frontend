@@ -7,15 +7,15 @@ export interface Product {
   id: number;
   name: string;
   description: string;
-  price: string;  
+  price: string;
   discountPrice: string;
   image: string;
   stock: number;
+  category: string;
   isAvailable?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
-
 
 export interface CartItem {
   id: number;
@@ -47,9 +47,8 @@ export const getCartItems = createAsyncThunk<CartItem[],void,{rejectValue : stri
   }catch(err){
     const error = err as AxiosError<{message : string}>;
     return rejectWithValue(error.response?.data?.message || "failed to fetch cart Items");
-  } 
+  }
 })
-
 
 export const addToCart = createAsyncThunk<
   CartItem,

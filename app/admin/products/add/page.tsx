@@ -1,113 +1,129 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store/store";
 import { resetProductState } from "@/app/store/slices/admin/productSlice";
 import axios from "axios";
-import { NextApiResponse } from "next";
+import toast from "react-hot-toast";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
-interface ProductForm {
-  name: string;
-  description: string;
-  price: string;
-  discountPrice: string;
-  stock: string;
-  image: File | null;
-  isAvailable: boolean;
-}
+const schema = yup.object({
+  name: yup.string().required("Product name is required"),
+  description: yup.string().required("Description is required"),
+  price: yup
+    .number()
+    .typeError("Price must be a number")
+    .positive("Price must be greater than 0")
+    .required("Price is required"),
+  discountPrice: yup
+    .number()
+    .typeError("Discount price must be a number")
+    .min(0, "Discount price must be positive")
+    .nullable()
+    .transform((value, originalValue) =>
+      String(originalValue).trim() === "" ? null : value
+    ),
+    category : yup.string().required("Category is required"),
+  stock: yup
+    .number()
+    .typeError("Stock must be a number")
+    .min(0, "Stock must be at least 1")
+    .required("Stock is required"),
+  image: yup
+    .mixed<File>()
+    .required("Image is required")
+    .test("fileSize", "Image must be less than 2MB", (file) =>
+      file ? file.size <= 2000000 : false
+    ),
+  isAvailable: yup.boolean().default(true),
+});
+
+type ProductForm = yup.InferType<typeof schema>;
 
 const CreateProductForm: React.FC = () => {
-  const [formData, setFormData] = useState<ProductForm>({
-    name: "",
-    description: "",
-    price: "",
-    discountPrice: "",
-    stock: "",
-    image: null,
-    isAvailable: true,
-  });
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, success, error } = useSelector(
+    (state: RootState) => state.product
+  );
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false)
 
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, success, error } = useSelector((state: RootState) => state.product)
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<ProductForm>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      description: "",
+      price: 0,
+      discountPrice: null,
+      stock: 0,
+      image: undefined as unknown as File,
+      isAvailable: true,
+    },
+  });
 
   useEffect(() => {
     if (success) {
-      alert("✅ Product created successfully!");
+      toast.success("✅ Product created successfully!");
       dispatch(resetProductState());
-      setFormData({
-        name: "",
-        description: "",
-        price: "",
-        discountPrice: "",
-        stock: "",
-        image: null,
-        isAvailable: true,
-      });
+      setSubmitted(false);
+      reset();
       setPreviewImage(null);
     }
     if (error) {
-      alert(error);
+      toast.error(error);
+      setSubmitted(false);
       dispatch(resetProductState());
     }
-  }, [success, error, dispatch])
+  }, [success, error, dispatch, reset]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const target = e.target;
-    const { name, type } = target;
-
-    if (type === "file") {
-      const input = target as HTMLInputElement;
-      const file = input.files ? input.files[0] : null;
-      console.log({ file })
-      setFormData({ ...formData, [name]: file });
-      if (file) {
-        setPreviewImage(URL.createObjectURL(file));
-      } else {
-        setPreviewImage(null);
-      }
-    } else if (type === "checkbox") {
-      const input = target as HTMLInputElement;
-      setFormData({ ...formData, [name]: input.checked });
-    } else {
-      setFormData({ ...formData, [name]: target.value });
+  const onSubmit: SubmitHandler<ProductForm> = async (data) => {
+    if (submitted) {
+      toast.error("⚠️ Product already being added. Please wait...");
+      return;
     }
-  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
-      e.preventDefault()
-
-      const data = new FormData();
-      data.append("name", formData.name);
-      data.append("description", formData.description);
-      data.append("price", formData.price);
-      data.append("discountPrice", formData.discountPrice);
-      data.append("stock", formData.stock);
-      if (formData.image) {
-        console.log("formData", formData)
-        data.append("image", formData.image);
+      setSubmitted(true);
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", data.price.toString());
+      formData.append("discountPrice", data.discountPrice?.toString() || "0");
+      formData.append("stock", data.stock.toString());
+      formData.append("category",data.category);
+      formData.append("isAvailable", String(data.isAvailable));
+      if (data.image) {
+        formData.append("image", data.image);
       }
-      const response = await axios.post<NextApiResponse>(
+
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/products`,
-        data,
+        formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      console.log({ response })
-    } catch (error) {
-      console.log({ error })
+      toast.success("✅ Product created successfully!");
+      console.log("response", response.data);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+      setSubmitted(false);
     }
-
   };
 
   return (
@@ -116,35 +132,42 @@ const CreateProductForm: React.FC = () => {
         Create New Product
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Product Name */}
         <div>
           <label className="block text-sm font-medium text-shop_light_text mb-1">
             Product Name
           </label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green"
+            {...register("name")}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.name ? "border-red-500" : ""
+              }`}
             placeholder="Enter product name"
-            required
           />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
         </div>
+
         <div>
           <label className="block text-sm font-medium text-shop_light_text mb-1">
             Description
           </label>
           <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green"
+            {...register("description")}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.description ? "border-red-500" : ""
+              }`}
             placeholder="Enter product description"
             rows={4}
-            required
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.description.message}
+            </p>
+          )}
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-shop_light_text mb-1">
@@ -152,13 +175,16 @@ const CreateProductForm: React.FC = () => {
             </label>
             <input
               type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green"
+              {...register("price")}
+              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.price ? "border-red-500" : ""
+                }`}
               placeholder="₹ Price"
-              required
             />
+            {errors.price && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.price.message}
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-shop_light_text mb-1">
@@ -166,27 +192,45 @@ const CreateProductForm: React.FC = () => {
             </label>
             <input
               type="number"
-              name="discountPrice"
-              value={formData.discountPrice}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green"
+              {...register("discountPrice")}
+              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.discountPrice ? "border-red-500" : ""
+                }`}
               placeholder="₹ Discount Price"
             />
+            {errors.discountPrice && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.discountPrice.message}
+              </p>
+            )}
           </div>
         </div>
+
         <div>
           <label className="block text-sm font-medium text-shop_light_text mb-1">
             Stock Quantity
           </label>
           <input
             type="number"
-            name="stock"
-            value={formData.stock}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green"
+            {...register("stock")}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.stock ? "border-red-500" : ""
+              }`}
             placeholder="Enter stock quantity"
-            required
           />
+          {errors.stock && (
+            <p className="text-red-500 text-sm mt-1">{errors.stock.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-shop_light_text mb-1">Category</label>
+          <select {...register("category")} className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.category ? "border-red-500" : ""}`}>
+            <option value="">Select a category</option>
+            <option value="Gadget">Gadget</option>
+            <option value="Appliances">Appliances</option>
+            <option value="Refrigerators">Refrigerators</option>
+            <option value="Others">Others</option>
+          </select>
+          {errors.category && (<p className="text-red-500 text-sm mt-1">{errors.category.message}</p>)}
         </div>
 
         <div>
@@ -195,32 +239,39 @@ const CreateProductForm: React.FC = () => {
           </label>
           <input
             type="file"
-            name="image"
             accept="image/*"
-            onChange={handleChange}
-            className="block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setValue("image", file, { shouldValidate: true });
+                setPreviewImage(URL.createObjectURL(file));
+              }
+            }}
+            className={`block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
               file:rounded-lg file:border-0
               file:text-sm file:font-semibold
               file:bg-shop_light_green file:text-white
-              hover:file:bg-shop_lighter_green"
+              hover:file:bg-shop_lighter_green ${errors.image ? "border-red-500" : ""
+              }`}
           />
+          {errors.image && (
+            <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+          )}
           {previewImage && (
             <Image
               src={previewImage}
               alt="Preview"
               width={160}
               height={160}
-              className="object-cover rounded-lg border"
+              className="object-cover rounded-lg border mt-2"
             />
           )}
         </div>
+
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
-            name="isAvailable"
-            checked={formData.isAvailable}
-            onChange={handleChange}
+            {...register("isAvailable")}
             className="h-4 w-4 text-shop_light_green focus:ring-shop_light_green border-gray-300 rounded"
           />
           <label className="text-sm text-shop_light_text">
@@ -230,6 +281,7 @@ const CreateProductForm: React.FC = () => {
 
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-shop_btn_dark_green text-white py-3 rounded-lg font-medium hover:bg-shop_light_green transition-all duration-300 hoverEffect"
         >
           {loading ? "Creating..." : "Create Product"}

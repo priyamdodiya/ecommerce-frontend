@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store/store";
 import { getProductById } from "@/app/store/slices/user/singleProductSlice";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
@@ -34,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         onClick={handleImageClick}
       >
         {product?.image && (
-          <img
+          <Image
             src={`${BASE_URL}${product.image}`}
             alt={product.name}
             width={500}

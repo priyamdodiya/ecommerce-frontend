@@ -5,10 +5,13 @@ export interface Product {
   id: number;
   name: string;
   description: string;
-  price: string;
+  price: number;
   discountPrice?: string;
   stock: number;
   image: string;
+  status?: string;
+  discount?: number; 
+  category: string;
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,10 +35,28 @@ export const getProducts = createAsyncThunk<
   { rejectValue: string }
 >("user/product/getAll", async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get<Product[]>(
+    const response = await axios.get<{ total: number; data: Product[] }>(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/products`
     );
-    return response.data;
+    return response.data.data;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    return rejectWithValue(
+      error.response?.data?.message || "Failed to fetch products"
+    );
+  }
+});
+
+export const getProductsByCategory = createAsyncThunk<
+  Product[],
+  string,
+  { rejectValue: string }
+>("user/product/getByCategory", async (category, { rejectWithValue }) => {
+  try {
+    const response = await axios.get<{ total: number; data: Product[] }>(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/products?category=${category}`
+    );
+    return response.data.data;
   } catch (err) {
     const error = err as AxiosError<{ message: string }>;
     return rejectWithValue(
@@ -67,6 +88,19 @@ const userProductSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? "Unknown error";
       });
+
+      builder
+      .addCase(getProductsByCategory.pending,(state)=>{
+        state.loading = true;
+      })
+      .addCase(getProductsByCategory.fulfilled,(state,action)=>{
+        state.loading = false;
+        state.products = action.payload;
+      })
+      .addCase(getProductsByCategory.rejected,(state,action)=>{
+        state.loading = false;
+        state.error = action.payload ?? "Unknown error"
+      })
   },
 });
 

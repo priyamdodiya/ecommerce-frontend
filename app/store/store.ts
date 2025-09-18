@@ -7,6 +7,7 @@ import productReducer from "./slices/admin/productSlice";
 import userProductReducer from "./slices/user/productSlice";
 import singleProductReducer from "./slices/user/singleProductSlice";
 import cartReducer from "./slices/user/cartSlice";
+import checkoutReducer from "./slices/user/checkoutSlice";
 const rootReducer = combineReducers({
   login : loginReducer,
   register : registerReducer,
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   userProduct: userProductReducer,
   singleProduct: singleProductReducer,
   cart: cartReducer,
+  checkout: checkoutReducer,
 });
 
 const peristConfig = {

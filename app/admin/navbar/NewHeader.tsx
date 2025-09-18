@@ -19,30 +19,15 @@ const NewHeader = () => {
                         Dashboard
                     </Link>
                     <div className="relative">
+                        <Link href="/admin/products">
                         <button
                             onClick={() => setOpen((prev) => !prev)}
                             className="hover:text-blue-600"
                         >
                             Products
                         </button>
-                        {open && (
-                            <div className="absolute top-8 left-0 w-48 bg-white text-gray-800 shadow-lg rounded-md py-2 z-50">
-                                <Link
-                                    href="/admin/products"
-                                    className="block px-4 py-2 hover:bg-gray-100"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    All Products
-                                </Link>
-                                <Link
-                                    href="/admin/products/add"
-                                    className="block px-4 py-2 hover:bg-gray-100"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    Add Product
-                                </Link>
-                            </div>
-                        )}
+                        </Link>
+
                     </div>
                     <Link href="/services" className="hover:text-blue-600">
                         Services

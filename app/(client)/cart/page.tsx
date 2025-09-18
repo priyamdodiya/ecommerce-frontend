@@ -18,24 +18,23 @@ import { ShoppingBag, Trash } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import axios from "axios";
-import { loadStripe } from "@stripe/stripe-js";
-
+import CheckoutButton from "@/components/CheckoutButton";
+import Image from "next/image";
 const CartPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector(selectCart);
-  const { data: productsData = [], loading: productsLoading } = useSelector(
-    (state: RootState) =>
-      state.userProduct.products || { data: [], loading: false }
-  );
 
+  const { products: productsData, loading: productsLoading, error: productsError } = useSelector(
+    (state: RootState) => state.userProduct
+  );
   useEffect(() => {
     dispatch(getCartItems());
     dispatch(getProducts());
   }, [dispatch]);
 
   if (loading || productsLoading) return <p>Loading cart...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (error || productsError) return <p style={{ color: "red" }}>{error || productsError}</p>;
+
 
   const BASE_URL = "http://localhost:3001";
 
@@ -54,58 +53,6 @@ const CartPage = () => {
     discountTotal += (productPrice - productDiscountPrice) * quantity;
   });
   const total = subtotal - discountTotal;
-
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLICK_KEY!);
-
-  const handleCheckout = async () => {
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        console.log("stripe failed to load");
-        return;
-      }
-
-      const cartData = items.map((item) => {
-        const product = productsData.find((p) => p.id === item.productId);
-        return {
-          product: {
-            name: product?.name,
-            image: product?.image,
-          },
-          price: product?.price,
-          quantity: item.quantity,
-        };
-      });
-
-      const res = await axios.post(
-        "http://localhost:3001/api/payment/checkout",
-        {
-          cartItems: cartData,
-          orderSummary: {
-            subTotal: subtotal,
-            discount: discountTotal,
-            total: total,
-          },
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const { id, url } = res.data;
-      if (!id || !url) {
-        console.log("Checkout session not created properly");
-        return;
-      }
-      window.location.href = url;
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
-
 
   return (
     <div className="bg-gray-50 pb-52 md:pb-10">
@@ -146,13 +93,14 @@ const CartPage = () => {
                           className="border p-1 rounded-md overflow-hidden group"
                         >
                           {product.image && (
-                            <img
+                            <Image
                               src={`${BASE_URL}${product.image}`}
                               alt={product.name}
                               width={500}
                               height={500}
                               className="w-32 md:w-40 h-32 md:h-40 object-cover group-hover:scale-105 hoverEffect"
                             />
+
                           )}
                         </Link>
                         <div className="h-full flex flex-1 flex-col justify-between py-1">
@@ -268,16 +216,27 @@ const CartPage = () => {
                         className="text-lg font-bold text-black"
                       />
                     </div>
-                    <Button
-                      onClick={handleCheckout}
-                      className="w-full rounded-full font-semibold tracking-wide hoverEffect"
-                      size="lg"
-                    >
-                      Proceed to Checkout
-                    </Button>
+                    <CheckoutButton
+                      items={items.map((item) => {
+                        const product = productsData.find((p) => p.id === item.productId);
+                        return {
+                          product: {
+                            name: product?.name,
+                            image: product?.image,
+                          },
+                          price: product?.price,
+                          quantity: item.quantity,
+                          discount: total,
+                        };
+                      })}
+                      orderSummary={{
+                        subTotal: subtotal,
+                        discount: total,
+                        total: discountTotal,
+                      }}
+                    />
                   </div>
                 </div>
-
                 <div className="bg-white rounded-md mt-5">
                   <Card>
                     <CardHeader>

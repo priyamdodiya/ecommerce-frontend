@@ -23,8 +23,9 @@ export const categoriesData = [
 ];
 
 export const productType = [
-  { title: "Gadget", value: "gadget" },
-  { title: "Appliances", value: "appliances" },
-  { title: "Refrigerators", value: "refrigerators" },
-  { title: "Others", value: "others" },
+  { title: "All", value: "all" },
+  { title: "Gadget", value: "Gadget" },
+  { title: "Appliances", value: "Appliances" },
+  { title: "Refrigerators", value: "Refrigerators" },
+  { title: "Others", value: "Others" },
 ];

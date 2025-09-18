@@ -7,6 +7,7 @@ import { RootState } from "../app/store/store";
 import { logout } from "../app/store/slices/loginSlice";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { clearCart } from "@/app/store/slices/user/cartSlice";
 const SignIn = () => {
   const { user } = useSelector((state: RootState) => state.login);
   const dispatch = useDispatch();
@@ -25,10 +26,11 @@ const SignIn = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearCart());
      router.push("/login");
     Cookies.remove("token");
     setMenuOpen(false);
-   
+
   Cookies.remove("role");
   };
 

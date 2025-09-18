@@ -14,6 +14,7 @@ import { FiShare2 } from "react-icons/fi";
 import { TbTruckDelivery } from "react-icons/tb";
 import { CornerDownLeft, Truck } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 const SingleProductPage = () => {
   const { id } = useParams();
@@ -58,9 +59,11 @@ const SingleProductPage = () => {
                 className="w-full max-h-[550px] min-h-[450px] border border-darkColor/10 rounded-md group overflow-hidden flex items-center justify-center bg-white"
               >
                 {active ? (
-                  <img
+                  <Image
                     src={active}
                     alt={product.name}
+                    height={500}
+                    width={500}
                     className="w-full h-80 object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
