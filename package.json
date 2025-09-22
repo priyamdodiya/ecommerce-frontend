@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "npx sharp --force",
     "typegen": "npx sanity@latest schema extract && npx sanity@latest typegen generate"
   },
   "dependencies": {
@@ -52,6 +53,7 @@
     "react-tooltip": "^5.29.1",
     "redux-persist": "^6.0.0",
     "sanity": "^4.3.0",
+    "sharp": "^0.34.4",
     "stripe": "^18.5.0",
     "styled-components": "^6.1.19",
     "sweetalert2": "^11.23.0",
