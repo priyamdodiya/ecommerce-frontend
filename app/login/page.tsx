@@ -34,24 +34,23 @@ const Login = () => {
     if (token && user) {
       toast.success("Login successful!");
       Cookies.set("token", token);
-    Cookies.set("role", user.role);
-      if(user.role === "ADMIN"){
+      Cookies.set("role", user.role || "");
+      if (user.role === "ADMIN") {
         router.push("/admin");
-      }else{
+      } else {
         router.push("/");
       }
     }
-  }, [token,user, router]);
+  }, [token, user, router]);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     await dispatch(loginUser(data));
   };
 
   const inputClass = (hasError: boolean) =>
-    `w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-1 transition ${
-      hasError
-        ? "border-red-500 focus:ring-red-500"
-        : "border-gray-300 focus:ring-shop_dark_green focus:border-shop_dark_green"
+    `w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-1 transition ${hasError
+      ? "border-red-500 focus:ring-red-500"
+      : "border-gray-300 focus:ring-shop_dark_green focus:border-shop_dark_green"
     }`;
 
   return (

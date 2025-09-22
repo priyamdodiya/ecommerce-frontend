@@ -7,7 +7,6 @@ import { resetProductState, updateProduct } from "@/app/store/slices/admin/produ
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useParams } from "next/navigation";
 
@@ -24,7 +23,6 @@ const schema = yup.object({
     .typeError("Discount price must be a number")
     .min(0, "Discount price must be positive")
     .nullable()
-    
     .transform((value, originalValue) =>
       String(originalValue).trim() === "" ? null : value
     ),
@@ -34,7 +32,13 @@ const schema = yup.object({
     .typeError("Stock must be a number")
     .min(0, "Stock must be at least 0")
     .required("Stock is required"),
-  image: yup.mixed<File>(),
+  image: yup
+    .mixed<File>()
+    .test(
+      "fileSize",
+      "Image must be less than 2MB",
+      (file) => !file || file.size <= 2000000
+    ),
   isAvailable: yup.boolean().default(true),
 });
 
@@ -48,22 +52,30 @@ const EditProductForm: React.FC = () => {
   );
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors },
   } = useForm<ProductForm>({
-    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      description: "",
+      price: 0,
+      discountPrice: null,
+      stock: 0,
+      image: undefined as unknown as File,
+      isAvailable: true,
+    },
   });
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3001/api/products/${id}`
-        );
+        const res = await axios.get(`http://localhost:3001/api/products/${id}`);
         const product = res.data;
 
         setValue("name", product.name);
@@ -97,20 +109,45 @@ const EditProductForm: React.FC = () => {
   }, [success, error, dispatch]);
 
   const onSubmit: SubmitHandler<ProductForm> = async (data) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", data.price.toString());
-    formData.append("discountPrice", data.discountPrice?.toString() || "0");
-    formData.append("stock", data.stock.toString());
-    formData.append("category", data.category);
-    formData.append("isAvailable", String(data.isAvailable));
-
-    if (data.image instanceof File) {
-      formData.append("image", data.image);
+    if (submitted) {
+      toast.error("⚠️ Product update in progress. Please wait...");
+      return;
     }
 
-    dispatch(updateProduct({ id: Number(id), formData }));
+    try {
+      await schema.validate(data, { abortEarly: false });
+      setSubmitted(true);
+
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", data.price.toString());
+      formData.append("discountPrice", data.discountPrice?.toString() || "0");
+      formData.append("stock", data.stock.toString());
+      formData.append("category", data.category);
+      formData.append("isAvailable", String(data.isAvailable));
+
+      if (data.image instanceof File) {
+        formData.append("image", data.image);
+      }
+
+      dispatch(updateProduct({ id: Number(id), formData }));
+      setSubmitted(false);
+    } catch (err: unknown) {
+      if (err instanceof yup.ValidationError) {
+        err.inner.forEach((yupError) => {
+          if (yupError.path) {
+            setError(yupError.path as keyof ProductForm, {
+              type: "manual",
+              message: yupError.message,
+            });
+          }
+        });
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+      setSubmitted(false);
+    }
   };
 
   return (
@@ -127,9 +164,8 @@ const EditProductForm: React.FC = () => {
           <input
             type="text"
             {...register("name")}
-            className={`w-full p-3 border rounded-lg ${
-              errors.name ? "border-red-500" : ""
-            }`}
+            className={`w-full p-3 border rounded-lg ${errors.name ? "border-red-500" : ""
+              }`}
             placeholder="Enter product name"
           />
           {errors.name && <p className="text-red-500">{errors.name.message}</p>}
@@ -141,48 +177,51 @@ const EditProductForm: React.FC = () => {
           </label>
           <textarea
             {...register("description")}
-            className={`w-full p-3 border rounded-lg ${
-              errors.description ? "border-red-500" : ""
-            }`}
+            className={`w-full p-3 border rounded-lg ${errors.description ? "border-red-500" : ""
+              }`}
             placeholder="Enter description"
             rows={4}
           />
-          {errors.description && (
-            <p className="text-red-500">{errors.description.message}</p>
-          )}
+          {errors.description && <p className="text-red-500">{errors.description.message}</p>}
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">Price</label>
             <input
               type="number"
               {...register("price")}
-              className="w-full p-3 border rounded-lg"
+              className={`w-full p-3 border rounded-lg ${errors.price ? "border-red-500" : ""}`}
             />
+            {errors.price && <p className="text-red-500">{errors.price.message}</p>}
           </div>
+
           <div>
             <label className="block text-sm font-medium">Discount Price</label>
             <input
               type="number"
               {...register("discountPrice")}
-              className="w-full p-3 border rounded-lg"
+              className={`w-full p-3 border rounded-lg ${errors.discountPrice ? "border-red-500" : ""}`}
             />
+            {errors.discountPrice && <p className="text-red-500">{errors.discountPrice.message}</p>}
           </div>
         </div>
+
         <div>
           <label className="block text-sm font-medium">Stock</label>
           <input
             type="number"
             {...register("stock")}
-            className="w-full p-3 border rounded-lg"
+            className={`w-full p-3 border rounded-lg ${errors.stock ? "border-red-500" : ""}`}
           />
+          {errors.stock && <p className="text-red-500">{errors.stock.message}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium">Category</label>
           <select
             {...register("category")}
-            className="w-full p-3 border rounded-lg"
+            className={`w-full p-3 border rounded-lg ${errors.category ? "border-red-500" : ""}`}
           >
             <option value="">Select</option>
             <option value="Gadget">Gadget</option>
@@ -190,12 +229,11 @@ const EditProductForm: React.FC = () => {
             <option value="Refrigerators">Refrigerators</option>
             <option value="Others">Others</option>
           </select>
+          {errors.category && <p className="text-red-500">{errors.category.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium">
-            Upload Product Image
-          </label>
+          <label className="block text-sm font-medium">Upload Product Image</label>
           <input
             type="file"
             accept="image/*"
@@ -207,6 +245,7 @@ const EditProductForm: React.FC = () => {
               }
             }}
           />
+          {errors.image && <p className="text-red-500">{errors.image.message}</p>}
           {previewImage && (
             <Image
               src={previewImage}

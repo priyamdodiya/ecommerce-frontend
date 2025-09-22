@@ -14,6 +14,14 @@ const SignIn = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const BASE_URL = "http://localhost:3001";
+
+  const getPhotoUrl = (photo : string | null | undefined) => {
+    if(!photo) return "/default-avatar.png";
+    if(photo.startsWith("http")) return photo;
+    return `${BASE_URL}${photo}`
+  }
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -38,7 +46,7 @@ const SignIn = () => {
     return (
       <div className="relative" ref={menuRef}>
         <Image
-          src={user?.profilePhoto || "/default-avatar.png"}
+          src={getPhotoUrl(user.profilePhoto)}
           alt={user?.username || "user"}
           width={36}
           height={36}

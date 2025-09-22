@@ -47,7 +47,6 @@ const SingleProductPage = () => {
     <Container className="flex flex-col md:flex-row gap-10 py-10">
       {product && (
         <>
-          {/* Product Image with hover functionality */}
           <div className="w-full md:w-1/2 space-y-4">
             <AnimatePresence mode="wait">
               <motion.div
@@ -72,7 +71,6 @@ const SingleProductPage = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Thumbnails */}
             {product?.images && product.images.length > 1 && (
               <div className="flex gap-3">
                 {product.images.map((img: string, idx: number) => {
@@ -84,9 +82,8 @@ const SingleProductPage = () => {
                       src={url}
                       alt={`thumbnail-${idx}`}
                       onMouseEnter={() => setActive(url)}
-                      className={`w-20 h-20 object-contain border rounded-md cursor-pointer ${
-                        active === url ? "border-red-500" : "border-gray-200"
-                      }`}
+                      className={`w-20 h-20 object-contain border rounded-md cursor-pointer ${active === url ? "border-red-500" : "border-gray-200"
+                        }`}
                     />
                   );
                 })}
@@ -94,7 +91,6 @@ const SingleProductPage = () => {
             )}
           </div>
 
-          {/* Product Details */}
           <div className="w-full md:w-1/2 flex flex-col gap-5">
             <div className="space-y-1">
               <h2 className="text-2xl font-bold">{product.name}</h2>
@@ -105,16 +101,15 @@ const SingleProductPage = () => {
 
             <div className="space-y-2 border-t border-b border-gray-200 py-5">
               <PriceView
-                price={product?.price}
+                price={Number(product?.price)}
                 discount={product?.discount}
                 className="text-lg font-bold"
               />
               <p
-                className={`px-4 py-1.5 text-sm text-center inline-block font-semibold rounded-lg ${
-                  product?.stock === 0
+                className={`px-4 py-1.5 text-sm text-center inline-block font-semibold rounded-lg ${product?.stock === 0
                     ? "bg-red-100 text-red-600"
                     : "text-green-600 bg-green-100"
-                }`}
+                  }`}
               >
                 {(product?.stock as number) > 0 ? "In Stock" : "Out of Stock"}
               </p>

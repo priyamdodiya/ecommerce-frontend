@@ -18,7 +18,7 @@ export interface UserData {
   email: string;
   gender: string;
   profilePhoto: string;
-  role: string;
+  role?: string;
 }
 
 export interface LoginResponse {

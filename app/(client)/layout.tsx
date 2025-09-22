@@ -18,12 +18,12 @@ export default function RootLayout({
 }>) {
 
   return (
-      <body className="font-poppins antialiased">
-        <div className="flex flex-col">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-      </body>
+    <body className="font-poppins antialiased">
+      <div className="flex flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
+    </body>
   );
 }

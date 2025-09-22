@@ -65,10 +65,9 @@ const Register = () => {
   };
 
   const inputClass = (hasError: boolean) =>
-    `w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-1 transition ${
-      hasError
-        ? "border-red-500 focus:ring-red-500"
-        : "border-gray-300 focus:ring-shop_dark_green focus:border-shop_dark_green"
+    `w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-1 transition ${hasError
+      ? "border-red-500 focus:ring-red-500"
+      : "border-gray-300 focus:ring-shop_dark_green focus:border-shop_dark_green"
     }`;
 
   return (

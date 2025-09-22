@@ -22,7 +22,7 @@ export default function AdminLayout({
   if (user.role !== "ADMIN") {
     return (
       <p className="text-red-500 text-center mt-10">
-        Access Denied ❌ Admins only.
+        Access Denied Admins only.
       </p>
     );
   }

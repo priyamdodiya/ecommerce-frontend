@@ -90,11 +90,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               ₹{product.discountPrice}
             </p>
           ) : (
+
             <PriceView
-              price={product?.price}
-              discount={product?.discount}
+              price={product?.price ? Number(product.price) : undefined}
+              discount={product?.discount ? Number(product.discount) : undefined}
               className="text-sm"
             />
+
           )}
         </div>
       </div>

@@ -24,7 +24,7 @@ export interface CartItem {
   quantity: number;
   createdAt: string;
   updatedAt: string;
-  product: Product; 
+  product: Product;
 }
 
 interface CartState {
@@ -38,14 +38,14 @@ const initialState: CartState = {
   loading: false,
   error: null,
 };
-export const getCartItems = createAsyncThunk<CartItem[],void,{rejectValue : string}>("cart/getCartItems", async (_,{rejectWithValue}) => {
-  try{
-    const token  = Cookies.get("token");
-        const res = await axios.get<CartItem[]>(`${process.env.NEXT_PUBLIC_API_BASE_URL}/carts`,{headers : {Authorization : `Bearer ${token}`},})
+export const getCartItems = createAsyncThunk<CartItem[], void, { rejectValue: string }>("cart/getCartItems", async (_, { rejectWithValue }) => {
+  try {
+    const token = Cookies.get("token");
+    const res = await axios.get<CartItem[]>(`${process.env.NEXT_PUBLIC_API_BASE_URL}/carts`, { headers: { Authorization: `Bearer ${token}` }, })
 
     return res.data
-  }catch(err){
-    const error = err as AxiosError<{message : string}>;
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
     return rejectWithValue(error.response?.data?.message || "failed to fetch cart Items");
   }
 })

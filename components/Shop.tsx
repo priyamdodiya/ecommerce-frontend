@@ -1,5 +1,5 @@
 "use client";
-import { BRANDS_QUERYResult, Category, Product } from "@/sanity.types";
+import { BRANDS_QUERYResult, Category } from "@/sanity.types";
 import React, { useEffect, useState } from "react";
 import Container from "./Container";
 import Title from "./Title";
@@ -7,27 +7,29 @@ import CategoryList from "./shop/CategoryList";
 import { useSearchParams } from "next/navigation";
 import BrandList from "./shop/BrandList";
 import PriceList from "./shop/PriceList";
-import { client } from "@/sanity/lib/client";
 import { Loader2 } from "lucide-react";
 import NoProductAvailable from "./NoProductAvailable";
 import ProductCard from "./ProductCard";
-
-interface ProductWithReviewStats extends Product {
-  reviewStats?: { rating: number }[];
-}
-
+import { useDispatch,useSelector } from "react-redux";
+import { AppDispatch,RootState } from "@/app/store/store";
+import { getProducts } from "@/app/store/slices/user/productSlice";
 interface Props {
   categories: Category[];
   brands: BRANDS_QUERYResult;
 }
 
 const Shop = ({ categories, brands }: Props) => {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const {products, loading} = useSelector((state : RootState)=>state.userProduct);
+
+  useEffect(()=>{
+    dispatch(getProducts())
+  },[dispatch])
+
   const searchParams = useSearchParams();
   const brandParams = searchParams?.get("brand");
   const categoryParams = searchParams?.get("category");
-
-  const [products, setProducts] = useState<ProductWithReviewStats[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     categoryParams || null
@@ -36,59 +38,6 @@ const Shop = ({ categories, brands }: Props) => {
     brandParams || null
   );
   const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        let minPrice = 0;
-        let maxPrice = 10000;
-        if (selectedPrice) {
-          const [min, max] = selectedPrice.split("-").map(Number);
-          minPrice = min;
-          maxPrice = max;
-        }
-
-  const query = `
-  *[_type == 'product' 
-    && (!defined($selectedCategory) || references(*[_type == "category" && slug.current == $selectedCategory]._id))
-    && (!defined($selectedBrand) || references(*[_type == "brand" && slug.current == $selectedBrand]._id))
-    && price >= $minPrice && price <= $maxPrice
-  ] 
-  | order(name asc) {
-    ...,
-    categories[]->{
-      _id,
-      "title": coalesce(title, name), // 👈 normalize title
-      slug
-    },
-    brand->{
-      _id,
-      "title": coalesce(title, name), // 👈 normalize title
-      slug
-    },
-    "reviewStats": *[_type == "review" && product._ref == ^._id] {
-      rating
-    }
-  }
-`;
-
-        const data = await client.fetch<ProductWithReviewStats[]>(
-          query,
-          { selectedCategory, selectedBrand, minPrice, maxPrice },
-          { next: { revalidate: 0 } }
-        );
-
-        setProducts(data);
-      } catch (error) {
-        console.log("Shop product fetching Error", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [selectedCategory, selectedBrand, selectedPrice]);
 
   return (
     <div className="border-t">
@@ -114,7 +63,6 @@ const Shop = ({ categories, brands }: Props) => {
               )}
           </div>
         </div>
-
         <div className="flex flex-col md:flex-row gap-5 border-t border-t-shop_dark_green/50">
           <div className="md:sticky md:top-20 md:self-start md:h-[calc(100vh-160px)] md:overflow-y-auto md:min-w-64 pb-5 md:border-r border-r-shop_btn_dark_green/50 scrollbar-hide">
             <CategoryList
@@ -145,7 +93,7 @@ const Shop = ({ categories, brands }: Props) => {
               ) : products?.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
                   {products.map((product) => (
-                    <ProductCard key={product?._id} product={product} />
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
               ) : (
@@ -160,6 +108,3 @@ const Shop = ({ categories, brands }: Props) => {
 };
 
 export default Shop;
-
-
-

@@ -8,6 +8,10 @@ import userProductReducer from "./slices/user/productSlice";
 import singleProductReducer from "./slices/user/singleProductSlice";
 import cartReducer from "./slices/user/cartSlice";
 import checkoutReducer from "./slices/user/checkoutSlice";
+import wishlistReducer from "./slices/user/wishlistSlice";
+import profileReducer from "./slices/user/profileSlice";
+
+
 const rootReducer = combineReducers({
   login : loginReducer,
   register : registerReducer,
@@ -16,12 +20,14 @@ const rootReducer = combineReducers({
   singleProduct: singleProductReducer,
   cart: cartReducer,
   checkout: checkoutReducer,
+  wishlist: wishlistReducer,
+  profile : profileReducer
 });
 
 const peristConfig = {
   key : "root",
   storage,
-  whitelist : ["login","cart"]
+  whitelist : ["login","cart","wishlist"]
 }
 const persistedReducer = persistReducer(peristConfig, rootReducer)
 export const store = configureStore({

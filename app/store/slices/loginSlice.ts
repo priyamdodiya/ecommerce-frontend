@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
 import { LoginPayload, UserData } from "./types";
+import { removeProfilePhoto, updateProfilePhoto } from "./user/profilePhotoSlice";
+import { updateProfile } from "./user/profileSlice";
 
 interface LoginState {
   loading: boolean;
@@ -45,6 +47,7 @@ const loginSlice = createSlice({
       state.token = null;
       state.user = null;
     },
+
   },
   extraReducers: (builder) => {
     builder
@@ -60,7 +63,27 @@ const loginSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = action.payload;
+        }
+      })
+
+
+
+      .addCase(updateProfilePhoto.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = action.payload;
+        }
+      })
+      .addCase(removeProfilePhoto.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = action.payload;
+        }
+      })
+
   },
 });
 

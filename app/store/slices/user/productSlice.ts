@@ -1,20 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
-
 export interface Product {
   id: number;
   name: string;
   description: string;
-  price: number;
-  discountPrice?: string;
+  price: string | number;
+  discountPrice?: string | number;
+  discount?: number;
   stock: number;
-  image: string;
-  status?: string;
-  discount?: number; 
   category: string;
-  isAvailable: boolean;
-  createdAt: string;
-  updatedAt: string;
+  image?: string;
+  images?: string[];
+  isAvailable?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: string;
 }
 
 interface ProductState {
@@ -89,15 +89,15 @@ const userProductSlice = createSlice({
         state.error = action.payload ?? "Unknown error";
       });
 
-      builder
-      .addCase(getProductsByCategory.pending,(state)=>{
+    builder
+      .addCase(getProductsByCategory.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getProductsByCategory.fulfilled,(state,action)=>{
+      .addCase(getProductsByCategory.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload;
       })
-      .addCase(getProductsByCategory.rejected,(state,action)=>{
+      .addCase(getProductsByCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Unknown error"
       })

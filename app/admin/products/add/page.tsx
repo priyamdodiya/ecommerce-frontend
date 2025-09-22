@@ -7,7 +7,6 @@ import { resetProductState } from "@/app/store/slices/admin/productSlice";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 const schema = yup.object({
@@ -23,10 +22,11 @@ const schema = yup.object({
     .typeError("Discount price must be a number")
     .min(0, "Discount price must be positive")
     .nullable()
+    .optional()
     .transform((value, originalValue) =>
       String(originalValue).trim() === "" ? null : value
     ),
-    category : yup.string().required("Category is required"),
+  category: yup.string().required("Category is required"),
   stock: yup
     .number()
     .typeError("Stock must be a number")
@@ -50,16 +50,16 @@ const CreateProductForm: React.FC = () => {
   );
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
     reset,
+    setError,
     formState: { errors },
   } = useForm<ProductForm>({
-    resolver: yupResolver(schema),
     defaultValues: {
       name: "",
       description: "",
@@ -93,14 +93,17 @@ const CreateProductForm: React.FC = () => {
     }
 
     try {
+      await schema.validate(data, { abortEarly: false });
+
       setSubmitted(true);
+
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("description", data.description);
       formData.append("price", data.price.toString());
       formData.append("discountPrice", data.discountPrice?.toString() || "0");
       formData.append("stock", data.stock.toString());
-      formData.append("category",data.category);
+      formData.append("category", data.category);
       formData.append("isAvailable", String(data.isAvailable));
       if (data.image) {
         formData.append("image", data.image);
@@ -116,14 +119,27 @@ const CreateProductForm: React.FC = () => {
 
       toast.success("✅ Product created successfully!");
       console.log("response", response.data);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data?.message || "Something went wrong");
-      } else {
-        toast.error("Unexpected error occurred");
-      }
       setSubmitted(false);
-    }
+      reset();
+      setPreviewImage(null);
+    }catch (err: unknown) {
+  if (err instanceof yup.ValidationError) {
+    err.inner.forEach((yupError) => {
+      if (yupError.path) {
+        setError(yupError.path as keyof ProductForm, {
+          type: "manual",
+          message: yupError.message,
+        });
+      }
+    });
+  }
+  else if (axios.isAxiosError(err)) {
+    toast.error(err.response?.data?.message || "Something went wrong");
+  } else {
+    toast.error("Unexpected error occurred");
+  }
+  setSubmitted(false);
+}
   };
 
   return (
@@ -133,7 +149,6 @@ const CreateProductForm: React.FC = () => {
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Product Name */}
         <div>
           <label className="block text-sm font-medium text-shop_light_text mb-1">
             Product Name
@@ -141,8 +156,7 @@ const CreateProductForm: React.FC = () => {
           <input
             type="text"
             {...register("name")}
-            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.name ? "border-red-500" : ""
-              }`}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.name ? "border-red-500" : ""}`}
             placeholder="Enter product name"
           />
           {errors.name && (
@@ -156,64 +170,49 @@ const CreateProductForm: React.FC = () => {
           </label>
           <textarea
             {...register("description")}
-            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.description ? "border-red-500" : ""
-              }`}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.description ? "border-red-500" : ""}`}
             placeholder="Enter product description"
             rows={4}
           />
           {errors.description && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.description.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-shop_light_text mb-1">
-              Price
-            </label>
+            <label className="block text-sm font-medium text-shop_light_text mb-1">Price</label>
             <input
               type="number"
               {...register("price")}
-              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.price ? "border-red-500" : ""
-                }`}
+              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.price ? "border-red-500" : ""}`}
               placeholder="₹ Price"
             />
             {errors.price && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.price.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
             )}
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-shop_light_text mb-1">
-              Discount Price
-            </label>
+            <label className="block text-sm font-medium text-shop_light_text mb-1">Discount Price</label>
             <input
               type="number"
               {...register("discountPrice")}
-              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.discountPrice ? "border-red-500" : ""
-                }`}
+              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.discountPrice ? "border-red-500" : ""}`}
               placeholder="₹ Discount Price"
             />
             {errors.discountPrice && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.discountPrice.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.discountPrice.message}</p>
             )}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-shop_light_text mb-1">
-            Stock Quantity
-          </label>
+          <label className="block text-sm font-medium text-shop_light_text mb-1">Stock Quantity</label>
           <input
             type="number"
             {...register("stock")}
-            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.stock ? "border-red-500" : ""
-              }`}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.stock ? "border-red-500" : ""}`}
             placeholder="Enter stock quantity"
           />
           {errors.stock && (
@@ -223,14 +222,19 @@ const CreateProductForm: React.FC = () => {
 
         <div>
           <label className="block text-sm font-medium text-shop_light_text mb-1">Category</label>
-          <select {...register("category")} className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.category ? "border-red-500" : ""}`}>
+          <select
+            {...register("category")}
+            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-shop_light_green focus:border-shop_light_green ${errors.category ? "border-red-500" : ""}`}
+          >
             <option value="">Select a category</option>
             <option value="Gadget">Gadget</option>
             <option value="Appliances">Appliances</option>
             <option value="Refrigerators">Refrigerators</option>
             <option value="Others">Others</option>
           </select>
-          {errors.category && (<p className="text-red-500 text-sm mt-1">{errors.category.message}</p>)}
+          {errors.category && (
+            <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
+          )}
         </div>
 
         <div>
@@ -251,8 +255,7 @@ const CreateProductForm: React.FC = () => {
               file:rounded-lg file:border-0
               file:text-sm file:font-semibold
               file:bg-shop_light_green file:text-white
-              hover:file:bg-shop_lighter_green ${errors.image ? "border-red-500" : ""
-              }`}
+              hover:file:bg-shop_lighter_green ${errors.image ? "border-red-500" : ""}`}
           />
           {errors.image && (
             <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>

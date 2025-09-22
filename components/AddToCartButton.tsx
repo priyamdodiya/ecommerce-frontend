@@ -9,10 +9,11 @@ import { cn } from "@/lib/utils";
 import { ShoppingBag } from "lucide-react";
 import PriceFormatter from "./PriceFormatter";
 import QuantityButtons from "./QuantityButtons";
-
+import { toast } from "react-hot-toast";
 interface AddToCartButtonProps {
   product: Product;
   className?: string;
+  
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
@@ -24,7 +25,6 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
   const [localLoading, setLocalLoading] = useState(false);
 
-  // ✅ check if product already exists in cart
   const cartItem = items.find((i) => i.productId === product.id);
 
   const discountAmount =
@@ -36,15 +36,23 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     ? Number(product.price) - discountAmount
     : 0;
 
+
+
   const handleAddToCart = async () => {
     if (!product?.id) return;
     setLocalLoading(true);
+
     const resultAction = await dispatch(
-      addToCart({ productId: product.id, quantity: 1 })
-    );
+  addToCart({ productId: product.id, quantity: 1 })
+);
+
+if (addToCart.fulfilled.match(resultAction)) {
+  toast.success(`${product.name} to cart successfully!`);
+} else {
+  toast.success("Failed to add to cart");
+}
     setLocalLoading(false);
   };
-
   const isOutOfStock = (product?.stock ?? 0) === 0;
 
   if (cartItem) {

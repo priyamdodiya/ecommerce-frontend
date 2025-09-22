@@ -12,6 +12,8 @@ import {
   OrderSummary,
 } from "@/app/store/slices/user/checkoutSlice";
 
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLICK_KEY!);
+
 interface CheckoutButtonProps {
   items: CheckoutCartItem[];
   orderSummary: OrderSummary;
@@ -22,8 +24,6 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ items, orderSummary }) 
   const { loading, error, session } = useSelector(
     (state: RootState) => state.checkout
   );
-
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLICK_KEY!);
 
   const handleCheckout = async () => {
     if (!items || items.length === 0) {
@@ -42,6 +42,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ items, orderSummary }) 
   useEffect(() => {
     const redirectToStripe = async () => {
       if (session?.url) {
+        console.log("Stripe session from Redux:", session);
         const stripe = await stripePromise;
         if (!stripe) {
           toast.error("Stripe failed to load");

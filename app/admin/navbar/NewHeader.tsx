@@ -1,12 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Container from "../../../components/Container";
 import Logo from "../../../components/Logo";
 import MobileMenu from "../../../components/MobileMenu";
 import SignIn from "@/components/SignIn";
 import Link from "next/link";
 const NewHeader = () => {
-    const [open, setOpen] = useState(false);
     return (
         <header className="bg-white/70 py-5 sticky top-0 z-50 backdrop-blur-md shadow">
             <Container className="flex items-center justify-between text-gray-800">
@@ -21,7 +20,6 @@ const NewHeader = () => {
                     <div className="relative">
                         <Link href="/admin/products">
                         <button
-                            onClick={() => setOpen((prev) => !prev)}
                             className="hover:text-blue-600"
                         >
                             Products
@@ -43,5 +41,4 @@ const NewHeader = () => {
         </header>
     );
 };
-
 export default NewHeader;

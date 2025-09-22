@@ -76,7 +76,7 @@ export const updateProduct = createAsyncThunk<
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${id}`,
         formData,
         {
-          withCredentials: true, 
+          withCredentials: true,
         }
       );
       return response.data;

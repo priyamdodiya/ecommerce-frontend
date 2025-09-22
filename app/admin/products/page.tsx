@@ -19,15 +19,13 @@ const ProductsPage = () => {
   }, [dispatch]);
 
   const handleDelete = async (id: number) => {
-  if (confirm("Are you sure you want to delete this product?")) {
-    const resultAction = await dispatch(deleteProduct(id));
-
-    if (deleteProduct.fulfilled.match(resultAction)) {
-      dispatch(getProducts());
+    if (confirm("Are you sure you want to delete this product?")) {
+      const resultAction = await dispatch(deleteProduct(id));
+      if (deleteProduct.fulfilled.match(resultAction)) {
+        dispatch(getProducts());
+      }
     }
-  }
-};
-
+  };
 
   return (
     <div className="p-6">

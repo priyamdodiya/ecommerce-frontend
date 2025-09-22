@@ -12,6 +12,7 @@ export interface Product {
   stock: number;
   image?: string;
   images?: string[];
+
 }
 
 interface ProductState {

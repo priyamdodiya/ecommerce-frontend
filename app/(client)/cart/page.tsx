@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import CheckoutButton from "@/components/CheckoutButton";
 import Image from "next/image";
+import AddToWishlistButton from "@/components/AddToWishlistButton";
 const CartPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector(selectCart);
@@ -44,14 +45,19 @@ const CartPage = () => {
   items.forEach((item) => {
     const product = productsData?.find((p) => p.id === item.productId);
     if (!product) return;
+
     const quantity = item.quantity;
-    const productPrice = product.price;
+
+    const productPrice = Number(product.price);
     const productDiscountPrice =
-      product.discountPrice ??
-      product.price - (product.price * (product.discount ?? 0)) / 100;
+      product.discountPrice !== undefined
+        ? Number(product.discountPrice)
+        : productPrice - (productPrice * (product.discount ?? 0)) / 100;
+
     subtotal += productPrice * quantity;
     discountTotal += (productPrice - productDiscountPrice) * quantity;
   });
+
   const total = subtotal - discountTotal;
 
   return (
@@ -76,11 +82,6 @@ const CartPage = () => {
 
                   const quantity = item.quantity;
                   const productPrice = product.price;
-                  const productDiscountPrice =
-                    product.discountPrice ??
-                    product.price -
-                    (product.price * (product.discount ?? 0)) / 100;
-
                   return (
                     <div
                       key={item.id}
@@ -131,6 +132,7 @@ const CartPage = () => {
                                 }
                               }}
                             />
+                            <AddToWishlistButton product={product} inline />
                           </div>
                         </div>
                       </div>
@@ -138,7 +140,7 @@ const CartPage = () => {
                       <div className="flex flex-col items-start justify-between h-36 md:h-44 p-1">
                         <span className="font-bold text-lg">
                           <PriceFormatter
-                            amount={productPrice * quantity}
+                            amount={Number(productPrice) * quantity}
                             className="font-bold text-black"
                           />
                         </span>
@@ -221,10 +223,10 @@ const CartPage = () => {
                         const product = productsData.find((p) => p.id === item.productId);
                         return {
                           product: {
-                            name: product?.name,
-                            image: product?.image,
+                            name: product?.name ?? "Unnamed Product",
+                            image: product?.image ?? "",
                           },
-                          price: product?.price,
+                          price: product ? Number(product.price) : 0,
                           quantity: item.quantity,
                           discount: total,
                         };
