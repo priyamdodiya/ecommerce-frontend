@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx sharp --force",
     "typegen": "npx sanity@latest schema extract && npx sanity@latest typegen generate"
   },
   "dependencies": {
@@ -77,5 +76,9 @@
     "patch-package": "^8.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+   "engines": {
+    "node": "18.x",
+    "npm": "9.x"
   }
 }
