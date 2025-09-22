@@ -76,9 +76,5 @@
     "patch-package": "^8.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-   "engines": {
-    "node": "18.x",
-    "npm": "9.x"
   }
 }
